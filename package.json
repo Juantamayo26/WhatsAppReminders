@@ -1,6 +1,7 @@
 {
   "scripts": {
     "start": "node ./build/src/server.js",
+    "build": "rm -rf ./build && ./node_modules/typescript/bin/tsc",
     "prettier": "./node_modules/prettier/bin/prettier.cjs --write '*/**/*.{js,ts,tsx}' && ./node_modules/prettier/bin/prettier.cjs --write '**/*.{yml,yaml}'"
   },
   "devDependencies": {
