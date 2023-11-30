@@ -8,6 +8,4 @@ app.disable("x-powered-by");
 
 app.use("/", router);
 
-app.listen(port, () => {
-    console.log(`LISTENING_ON_PORT_${port}`);
-});
+export default app;
