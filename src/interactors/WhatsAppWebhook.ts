@@ -114,8 +114,8 @@ export const sendMessageWebhook = async (
 };
 
 const saveRemin = async (message: string): Promise<void> => {
-   await onSession(async (connection: Connection) => {
-     const reminder = new Reminder("JUAN_TAMAYO", moment.utc(), message);
-     return saveReminder(reminder, connection);
-   });
-}
+  await onSession(async (connection: Connection) => {
+    const reminder = new Reminder("JUAN_TAMAYO", moment.utc(), message);
+    return saveReminder(reminder, connection);
+  });
+};
