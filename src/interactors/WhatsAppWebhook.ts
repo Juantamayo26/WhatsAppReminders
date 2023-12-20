@@ -3,6 +3,11 @@ import { onSession } from "../../gateway/PlanetScale/Basics";
 import { Reminder } from "../entities/Reminder";
 import moment from "moment";
 import { saveReminder } from "../../gateway/PlanetScale/WhatsApp";
+import { User } from "../entities/User";
+import {
+  getUserByPhoneNumber,
+  saveUser,
+} from "../../gateway/PlanetScale/Users";
 
 export interface WhatsAppWebhook {
   object: string;
@@ -82,7 +87,7 @@ export enum WebhookStatus {
 
 export const sendMessageWebhook = async (
   payload: WhatsAppWebhook,
-  clientId: string,
+  _clientId: string,
 ): Promise<void> => {
   await Promise.resolve();
   const whatsAppMessage = payload.entry[0].changes[0].value.messages![0];
@@ -104,18 +109,27 @@ export const sendMessageWebhook = async (
   const imageMessage = whatsAppMessage.image;
 
   // const { phoneNumberId: accountId } = payload.entry[0].changes[0].value.metadata;
-  // const { recipientPhoneNumber } = payload.entry[0].changes[0].value.contacts![0];
+  const { recipientPhoneNumber } =
+    payload.entry[0].changes[0].value.contacts![0];
+  await onSession(async (connection: Connection) => {
+    const user = await getUserByPhoneNumber(recipientPhoneNumber, connection);
+    if (user === null) {
+      const user = new User(recipientPhoneNumber);
+      return saveUser(user, connection);
+    }
 
-  if (imageMessage) {
-    console.log("THIS IS A IMAGE");
-  } else {
-    await saveRemin(textMessage);
-  }
+    if (imageMessage) {
+      console.log("THIS IS A IMAGE");
+    } else {
+      await saveRemin(textMessage, connection);
+    }
+  });
 };
 
-const saveRemin = async (message: string): Promise<void> => {
-  await onSession(async (connection: Connection) => {
-    const reminder = new Reminder("JUAN_TAMAYO", moment.utc(), message);
-    return saveReminder(reminder, connection);
-  });
+const saveRemin = async (
+  message: string,
+  connection: Connection,
+): Promise<void> => {
+  const reminder = new Reminder("JUAN_TAMAYO", moment.utc(), message);
+  return saveReminder(reminder, connection);
 };
