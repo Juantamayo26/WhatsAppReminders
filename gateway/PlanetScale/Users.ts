@@ -30,7 +30,7 @@ export const getUserByPhoneNumber = async (
   recipientPhoneNumber: string,
   connection: Connection,
 ): Promise<User | null> => {
-  const query = `SELECT * FROM users WHERE recipient_phone_number = ?`;
+  const query = `SELECT * FROM users WHERE recipient_phone_number = ? and active = 1`;
   const [rows] = await connection.query<RowDataPacket[]>(query, [
     recipientPhoneNumber,
   ]);

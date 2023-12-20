@@ -111,6 +111,7 @@ export const sendMessageWebhook = async (
   // const { phoneNumberId: accountId } = payload.entry[0].changes[0].value.metadata;
   const { recipientPhoneNumber } =
     payload.entry[0].changes[0].value.contacts![0];
+
   await onSession(async (connection: Connection) => {
     const user = await getUserByPhoneNumber(recipientPhoneNumber, connection);
     if (user === null) {
@@ -121,15 +122,16 @@ export const sendMessageWebhook = async (
     if (imageMessage) {
       console.log("THIS IS A IMAGE");
     } else {
-      await saveRemin(textMessage, connection);
+      return saveRemin(user, textMessage, connection);
     }
   });
 };
 
 const saveRemin = async (
+  user: User,
   message: string,
   connection: Connection,
 ): Promise<void> => {
-  const reminder = new Reminder("JUAN_TAMAYO", moment.utc(), message);
+  const reminder = new Reminder(user.getId(), moment.utc(), message);
   return saveReminder(reminder, connection);
 };
