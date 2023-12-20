@@ -1,3 +1,9 @@
+import { Connection } from "mysql2/promise";
+import { onSession } from "../../gateway/PlanetScale/Basics";
+import { Reminder } from "../entities/Reminder";
+import moment from "moment";
+import { saveReminder } from "../../gateway/PlanetScale/WhatsApp";
+
 export interface WhatsAppWebhook {
   object: string;
   entry: WhatsAppEntry[];
@@ -94,7 +100,7 @@ export const sendMessageWebhook = async (
     return;
   }
 
-  const textMessage = whatsAppMessage.text?.body;
+  const textMessage = whatsAppMessage.text?.body!;
   const imageMessage = whatsAppMessage.image;
 
   // const { phoneNumberId: accountId } = payload.entry[0].changes[0].value.metadata;
@@ -103,6 +109,13 @@ export const sendMessageWebhook = async (
   if (imageMessage) {
     console.log("THIS IS A IMAGE");
   } else {
-    console.log(textMessage);
+    await saveRemin(textMessage);
   }
 };
+
+const saveRemin = async (message: string): Promise<void> => {
+   await onSession(async (connection: Connection) => {
+     const reminder = new Reminder("JUAN_TAMAYO", moment.utc(), message);
+     return saveReminder(reminder, connection);
+   });
+}
