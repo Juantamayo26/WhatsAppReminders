@@ -28,13 +28,14 @@ export const createAssistant = async () => {
               reminder_at: {
                 type: "string",
                 format: "date-time",
-                description: "The date for the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
+                description:
+                  "The date for the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
               },
             },
             required: ["content, reminder_at"],
           },
         },
-      }
+      },
     ],
     model: "gpt-3.5-turbo-1106",
   });
@@ -65,11 +66,11 @@ export const runAssistant = async (user: User, content: string) => {
     // @ts-ignore
     const openAIResponse = messages.data[0].content.find((e) => e.type == "text" ).text.value as string;
     return openAIResponse;
-  }else if(runWebhook !== null && runWebhook.status === "requires_action"){
+  } else if (runWebhook !== null && runWebhook.status === "requires_action") {
     console.log("SAVE_REMINDER", JSON.stringify(runWebhook));
   }
 
-  throw new Error("No response from OpenAI");
+  return null;
 };
 
 const pollStatus = async (

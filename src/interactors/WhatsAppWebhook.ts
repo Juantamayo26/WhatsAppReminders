@@ -129,12 +129,12 @@ export const sendMessageWebhook = async (
       console.log("THIS IS A IMAGE");
     } else {
       const response = await runAssistant(user, textMessage);
-      await sendWhatsAppMessage(
-        accountId,
-        generateWhatsAppText(response, recipientPhoneNumber),
-      );
-
-      //return saveRemin(user, textMessage, connection);
+      if (response) {
+        await sendWhatsAppMessage(
+          accountId,
+          generateWhatsAppText(response, recipientPhoneNumber),
+        );
+      }
     }
   });
 };

@@ -22,7 +22,7 @@ export const getNotificationWebhookController = [
       //     new GambitError(errors[0].title, "WHATSAPP_WEBHOOK_ERROR", errors[0].code)
       //   );
       // }
-      console.log("REQUEST", whatsAppPayload);
+      console.log("REQUEST", JSON.stringify(whatsAppPayload));
       if (shouldSendMessage(whatsAppPayload)) {
         await sendMessageWebhook(whatsAppPayload, clientId);
       }
