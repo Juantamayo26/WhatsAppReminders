@@ -73,6 +73,8 @@ export const sendWhatsAppMessage = async (
   whatsAppPhoneNumber: string,
   whatsAppMessage: WhatsAppRequestBody,
 ): Promise<string[]> => {
+  console.log(`${WHATSAPP_URL}/${whatsAppPhoneNumber}/messages`);
+  console.log(whatsAppMessage);
   const { data } = await axios.post<WhatsAppResponse>(
     `${WHATSAPP_URL}/${whatsAppPhoneNumber}/messages`,
     { body: whatsAppMessage },
@@ -83,6 +85,7 @@ export const sendWhatsAppMessage = async (
       },
     },
   );
+  console.log(data);
 
   const messageIds = data.messages.map((message) => {
     return message.id;

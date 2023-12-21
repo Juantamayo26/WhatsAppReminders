@@ -129,6 +129,7 @@ export const sendMessageWebhook = async (
       console.log("THIS IS A IMAGE");
     } else {
       const response = await runAssistant(user, textMessage);
+      console.log(response);
       await sendWhatsAppMessage(
         accountId,
         generateWhatsAppText(response, recipientPhoneNumber),
@@ -139,7 +140,7 @@ export const sendMessageWebhook = async (
   });
 };
 
-const saveRemin = async (
+export const saveRemin = async (
   user: User,
   message: string,
   connection: Connection,
