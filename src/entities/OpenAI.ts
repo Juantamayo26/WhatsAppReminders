@@ -75,16 +75,31 @@ export const runAssistant = async (
     const openAIResponse = messages.data[0].content.find((e) => e.type == "text" ).text.value as string;
     return openAIResponse;
   } else if (runWebhook !== null && runWebhook.status === "requires_action") {
-    const functionArguments =
-      runWebhook.required_action!.submit_tool_outputs.tool_calls[0].function
-        .arguments;
+    const toolCalls =
+      runWebhook.required_action!.submit_tool_outputs.tool_calls[0];
+    const functionArguments = toolCalls.function.arguments;
 
     const reminderParse = JSON.parse(functionArguments) as createReminderOpenAI;
     const { content, reminder_at } = reminderParse;
     const reminder = new Reminder(user.getId(), moment(reminder_at), content);
     await saveReminder(reminder, connection);
-
     console.log("SAVE_REMINDER", JSON.stringify(runWebhook));
+
+    openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {
+      tool_outputs: [
+        {
+          tool_call_id: toolCalls.id,
+          output: "REMINDER_SAVED",
+        },
+      ],
+    });
+
+    await pollStatus(run);
+    const messagess = await openai.beta.threads.messages.list(run.thread_id);
+    // prettier-ignore
+    // @ts-ignore
+    const openAIResponse = messagess!.data[0].content.find((e) => e.type == "text" ).text.value as string;
+    console.log(openAIResponse);
   }
 
   return null;
