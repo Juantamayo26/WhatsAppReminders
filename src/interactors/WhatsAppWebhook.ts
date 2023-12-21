@@ -128,7 +128,7 @@ export const sendMessageWebhook = async (
     if (imageMessage) {
       console.log("THIS IS A IMAGE");
     } else {
-      const response = await runAssistant(user, textMessage);
+      const response = await runAssistant(user, textMessage, connection);
       if (response) {
         await sendWhatsAppMessage(
           accountId,

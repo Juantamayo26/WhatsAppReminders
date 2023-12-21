@@ -1,6 +1,10 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { User } from "./User";
+import { Reminder } from "./Reminder";
+import moment from "moment";
+import { saveReminder } from "../../gateway/PlanetScale/WhatsApp";
+import { Connection } from "mysql2/promise";
 
 dotenv.config();
 
@@ -43,7 +47,11 @@ export const createAssistant = async () => {
   console.log(myAssistant);
 };
 
-export const runAssistant = async (user: User, content: string) => {
+export const runAssistant = async (
+  user: User,
+  content: string,
+  connection: Connection,
+) => {
   if (user.getThreadId() === null) {
     const { id } = await openai.beta.threads.create();
     user.setThreadId(id);
@@ -67,11 +75,25 @@ export const runAssistant = async (user: User, content: string) => {
     const openAIResponse = messages.data[0].content.find((e) => e.type == "text" ).text.value as string;
     return openAIResponse;
   } else if (runWebhook !== null && runWebhook.status === "requires_action") {
+    const functionArguments =
+      runWebhook.required_action!.submit_tool_outputs.tool_calls[0].function
+        .arguments;
+
+    const reminderParse = JSON.parse(functionArguments) as createReminderOpenAI;
+    const { content, reminder_at } = reminderParse;
+    const reminder = new Reminder(user.getId(), moment(reminder_at), content);
+    await saveReminder(reminder, connection);
+
     console.log("SAVE_REMINDER", JSON.stringify(runWebhook));
   }
 
   return null;
 };
+
+interface createReminderOpenAI {
+  content: string;
+  reminder_at: string;
+}
 
 const pollStatus = async (
   run: OpenAI.Beta.Threads.Run,
