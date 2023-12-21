@@ -6,6 +6,7 @@ interface UserDbStructure {
   recipient_phone_number: string;
   active: boolean;
   created_at: string;
+  thread_id: string | null;
 }
 
 export const saveUser = async (
@@ -48,6 +49,7 @@ const getUserStructure = (user: User): UserDbStructure => {
     recipient_phone_number: user.getRecipientPhoneNumber(),
     active: user.getActive(),
     created_at: user.getCreatedAt(),
+    thread_id: user.getThreadId(),
   };
 };
 
@@ -57,5 +59,6 @@ const buildUserFromRow = (user: any): User => {
     user.recipient_phone_number,
     user.active,
     user.created_at,
+    user.thread_id,
   );
 };

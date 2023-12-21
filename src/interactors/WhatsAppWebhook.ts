@@ -8,6 +8,11 @@ import {
   getUserByPhoneNumber,
   saveUser,
 } from "../../gateway/PlanetScale/Users";
+import { runAssistant } from "../entities/OpenAI";
+import {
+  generateWhatsAppText,
+  sendWhatsAppMessage,
+} from "../entities/WhatsApp";
 
 export interface WhatsAppWebhook {
   object: string;
@@ -108,7 +113,8 @@ export const sendMessageWebhook = async (
   const textMessage = whatsAppMessage.text?.body!;
   const imageMessage = whatsAppMessage.image;
 
-  // const { phoneNumberId: accountId } = payload.entry[0].changes[0].value.metadata;
+  const { phoneNumberId: accountId } =
+    payload.entry[0].changes[0].value.metadata;
   const { recipientPhoneNumber } =
     payload.entry[0].changes[0].value.contacts![0];
 
@@ -122,7 +128,13 @@ export const sendMessageWebhook = async (
     if (imageMessage) {
       console.log("THIS IS A IMAGE");
     } else {
-      return saveRemin(user, textMessage, connection);
+      const response = await runAssistant(user, textMessage);
+      await sendWhatsAppMessage(
+        accountId,
+        generateWhatsAppText(response, recipientPhoneNumber),
+      );
+
+      //return saveRemin(user, textMessage, connection);
     }
   });
 };
