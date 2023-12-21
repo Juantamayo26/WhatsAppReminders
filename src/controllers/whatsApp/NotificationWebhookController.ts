@@ -35,7 +35,12 @@ export const getNotificationWebhookController = [
 
 const shouldSendMessage = (whatsAppPayload: WhatsAppWebhook): boolean => {
   const whatsAppMessageType =
-    whatsAppPayload.entry[0].changes[0].value.messages![0].type;
-  const validMessageTypes = ["text"];
-  return validMessageTypes.includes(whatsAppMessageType);
+    whatsAppPayload.entry[0].changes[0].value.messages;
+
+  if (whatsAppMessageType === undefined) {
+    const validMessageTypes = ["text"];
+    return validMessageTypes.includes(whatsAppMessageType![0].type);
+  }
+
+  return false;
 };
