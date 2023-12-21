@@ -19,7 +19,7 @@ export const saveUser = async (
       return `${key}`;
     })
     .join(",");
-  const query = `INSERT INTO users (${columns}) VALUES (?, ?, ?, ?)`;
+  const query = `INSERT INTO users (${columns}) VALUES (?, ?, ?, ?, ?)`;
   const values = Object.keys(userStructure).map((key) => {
     return (userStructure as any)[key];
   });
