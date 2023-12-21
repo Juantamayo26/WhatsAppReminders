@@ -24,7 +24,6 @@ export const saveUser = async (
     return (userStructure as any)[key];
   });
   await connection.query(query, values);
-  console.log("DONE");
 };
 
 export const getUserByPhoneNumber = async (

@@ -28,7 +28,6 @@ export const saveReminder = async (
   });
 
   await connection.query(query, values);
-  console.log("DONE");
 };
 
 const getReminderStructure = (reminder: Reminder): ReminderDbStructure => {

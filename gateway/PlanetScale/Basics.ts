@@ -16,7 +16,6 @@ export const onSession = async <T>(
     throw error;
   } finally {
     connection.release();
-    console.log("RELEASE");
   }
 };
 
