@@ -37,7 +37,7 @@ const shouldSendMessage = (whatsAppPayload: WhatsAppWebhook): boolean => {
   const whatsAppMessageType =
     whatsAppPayload.entry[0].changes[0].value.messages;
 
-  if (whatsAppMessageType === undefined) {
+  if (whatsAppMessageType !== undefined) {
     const validMessageTypes = ["text"];
     return validMessageTypes.includes(whatsAppMessageType![0].type);
   }
