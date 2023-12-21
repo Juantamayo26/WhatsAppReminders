@@ -16,38 +16,25 @@ export const createAssistant = async () => {
       {
         type: "function",
         function: {
-          name: "getCurrentWeather",
-          description: "Get the weather in location",
+          name: "createReminder",
+          description: "Create a reminder",
           parameters: {
             type: "object",
             properties: {
-              location: {
+              content: {
                 type: "string",
-                description: "The city and state e.g. San Francisco, CA",
+                description: "The content of the reminder",
               },
-              unit: { type: "string", enum: ["c", "f"] },
-            },
-            required: ["location"],
-          },
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "getNickname",
-          description: "Get the nickname of a city",
-          parameters: {
-            type: "object",
-            properties: {
-              location: {
+              reminder_at: {
                 type: "string",
-                description: "The city and state e.g. San Francisco, CA",
+                format: "date-time",
+                description: "The date for the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
               },
             },
-            required: ["location"],
+            required: ["content, reminder_at"],
           },
         },
-      },
+      }
     ],
     model: "gpt-3.5-turbo-1106",
   });
@@ -70,14 +57,16 @@ export const runAssistant = async (user: User, content: string) => {
     assistant_id: ASSISTANT_ID,
   });
 
-  const runStatus = await pollStatus(run);
+  const runWebhook = await pollStatus(run);
 
-  if (runStatus !== null) {
+  if (runWebhook !== null && runWebhook.status === "completed") {
     const messages = await openai.beta.threads.messages.list(run.thread_id);
     // prettier-ignore
     // @ts-ignore
     const openAIResponse = messages.data[0].content.find((e) => e.type == "text" ).text.value as string;
     return openAIResponse;
+  }else if(runWebhook !== null && runWebhook.status === "requires_action"){
+    console.log("SAVE_REMINDER", JSON.stringify(runWebhook));
   }
 
   throw new Error("No response from OpenAI");
@@ -93,7 +82,7 @@ const pollStatus = async (
     let data = null;
     let retryCount = 0;
 
-    while (status !== "completed") {
+    while (status !== "completed" && status !== "requires_action") {
       if (retryCount >= maxRetries) {
         throw new Error("Max retries exceeded");
       }

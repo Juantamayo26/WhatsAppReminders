@@ -3,3 +3,14 @@
 - WhatsApp Bearer sin limites
 - Optimizar los deploys
 - Whisper
+- Change to completions
+  - Create threads table
+
+
+Limits
+
+0.06 Whisper 10mins/month 
+0.06 Tokens chatGTP
+
+~ 1/EachUser
+MMR 4
