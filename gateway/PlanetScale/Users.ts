@@ -7,6 +7,7 @@ interface UserDbStructure {
   active: boolean;
   created_at: string;
   thread_id: string | null;
+  time_zone: string;
 }
 
 export const saveUser = async (
@@ -19,7 +20,7 @@ export const saveUser = async (
       return `${key}`;
     })
     .join(",");
-  const query = `INSERT INTO users (${columns}) VALUES (?, ?, ?, ?, ?)`;
+  const query = `INSERT INTO users (${columns}) VALUES (?, ?, ?, ?, ?, ?)`;
   const values = Object.keys(userStructure).map((key) => {
     return (userStructure as any)[key];
   });
@@ -49,6 +50,7 @@ const getUserStructure = (user: User): UserDbStructure => {
     active: user.getActive(),
     created_at: user.getCreatedAt(),
     thread_id: user.getThreadId(),
+    time_zone: user.getTimeZone(),
   };
 };
 
@@ -59,5 +61,6 @@ const buildUserFromRow = (user: any): User => {
     user.active,
     user.created_at,
     user.thread_id,
+    user.time_zone,
   );
 };

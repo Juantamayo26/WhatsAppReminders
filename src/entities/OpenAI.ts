@@ -99,7 +99,7 @@ export const runAssistant = async (
     // prettier-ignore
     // @ts-ignore
     const openAIResponse = messagess!.data[0].content.find((e) => e.type == "text" ).text.value as string;
-    console.log(openAIResponse);
+    return openAIResponse;
   }
 
   return null;

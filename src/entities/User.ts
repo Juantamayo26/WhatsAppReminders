@@ -7,6 +7,7 @@ export class User {
   private active: boolean;
   private createdAt: string;
   private threadId: string | null;
+  private timeZone: string;
 
   public static loadUser(
     id: string,
@@ -14,8 +15,9 @@ export class User {
     active: boolean,
     createdAt: string,
     threadId: string | null,
+    timeZone: string,
   ): User {
-    const user = new User(recipientPhoneNumber);
+    const user = new User(recipientPhoneNumber, timeZone);
     user.setId(id);
     user.setActive(active);
     user.setCreatedAt(createdAt);
@@ -23,12 +25,13 @@ export class User {
     return user;
   }
 
-  constructor(recipientPhoneNumber: string) {
+  constructor(recipientPhoneNumber: string, timeZone: string) {
     this.id = uuid();
     this.recipientPhoneNumber = recipientPhoneNumber;
     this.active = true;
     this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
     this.threadId = null;
+    this.timeZone = timeZone;
   }
 
   public getId(): string {
@@ -65,5 +68,13 @@ export class User {
 
   public setCreatedAt(createdAt: string): void {
     this.createdAt = createdAt;
+  }
+
+  public getTimeZone(): string {
+    return this.timeZone;
+  }
+
+  public setTimeZone(timeZone: string): void {
+    this.timeZone = timeZone;
   }
 }

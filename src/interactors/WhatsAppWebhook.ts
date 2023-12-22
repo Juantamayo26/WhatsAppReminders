@@ -119,9 +119,12 @@ export const sendMessageWebhook = async (
     payload.entry[0].changes[0].value.contacts![0];
 
   await onSession(async (connection: Connection) => {
+    // TODO: get the timeZone by a chatgpt function
+    const timeZone = "America/Bogota";
+
     const user = await getUserByPhoneNumber(recipientPhoneNumber, connection);
     if (user === null) {
-      const user = new User(recipientPhoneNumber);
+      const user = new User(recipientPhoneNumber, timeZone);
       return saveUser(user, connection);
     }
 
@@ -137,13 +140,4 @@ export const sendMessageWebhook = async (
       }
     }
   });
-};
-
-export const saveRemin = async (
-  user: User,
-  message: string,
-  connection: Connection,
-): Promise<void> => {
-  const reminder = new Reminder(user.getId(), moment.utc(), message);
-  return saveReminder(reminder, connection);
 };
