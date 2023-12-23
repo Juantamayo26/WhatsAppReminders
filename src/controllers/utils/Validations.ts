@@ -1,4 +1,4 @@
-import { body, param, type ValidationChain } from "express-validator";
+import { body, type ValidationChain } from "express-validator";
 import { WebhookStatus } from "../../interactors/WhatsAppWebhook";
 
 const whatsAppMesageValidation = (propertyName: string): ValidationChain[] => {
@@ -102,7 +102,6 @@ const whatsAppErrorsValidation = (propertyName: string): ValidationChain[] => {
 };
 
 export const notificationWhatsAppWebhookValidator: ValidationChain[] = [
-  param("client_id").exists().isString(),
   body("object").exists().isString(),
   body("entry").exists().isArray().isLength({ min: 1 }),
   body("entry.*.id").exists().isString(),

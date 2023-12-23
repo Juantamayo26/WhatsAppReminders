@@ -4,7 +4,7 @@ import { subscribeWhatsAppWebHookController } from "../whatsApp/WebHook";
 
 const router = express.Router();
 
-router.get("/:client_id/webhook", subscribeWhatsAppWebHookController);
-router.post("/:client_id/webhook", getNotificationWebhookController);
+router.get("/webhook", subscribeWhatsAppWebHookController);
+router.post("/webhook", getNotificationWebhookController);
 
 export default router;

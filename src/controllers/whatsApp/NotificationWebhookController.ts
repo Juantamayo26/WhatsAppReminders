@@ -13,7 +13,6 @@ export const getNotificationWebhookController = [
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const whatsAppPayload = buildWhatsAppWebHookPayload(req.body);
-      const { client_id: clientId } = req.params;
       // const errors = whatsAppPayload.entry[0].changes[0].value.errors
       // if (errors && errors.length > 0) {
       //   log.error(
@@ -24,7 +23,7 @@ export const getNotificationWebhookController = [
       // }
       console.log("REQUEST", JSON.stringify(whatsAppPayload));
       if (shouldSendMessage(whatsAppPayload)) {
-        await sendMessageWebhook(whatsAppPayload, clientId);
+        await sendMessageWebhook(whatsAppPayload);
       }
       res.sendStatus(200);
     } catch (error) {

@@ -1,8 +1,5 @@
 import { Connection } from "mysql2/promise";
 import { onSession } from "../../gateway/PlanetScale/Basics";
-import { Reminder } from "../entities/Reminder";
-import moment from "moment";
-import { saveReminder } from "../../gateway/PlanetScale/WhatsApp";
 import { User } from "../entities/User";
 import {
   getUserByPhoneNumber,
@@ -92,7 +89,6 @@ export enum WebhookStatus {
 
 export const sendMessageWebhook = async (
   payload: WhatsAppWebhook,
-  _clientId: string,
 ): Promise<void> => {
   await Promise.resolve();
   const whatsAppMessage = payload.entry[0].changes[0].value.messages![0];

@@ -1,9 +1,8 @@
 import { type Request, type Response } from "express";
-import { param, query } from "express-validator";
+import { query } from "express-validator";
 import { validation } from "../utils/Validator";
 
 export const subscribeWhatsAppWebHookController = [
-  param("client_id").exists().isString(),
   query("hub.verify_token").exists().isString(),
   query("hub.mode").exists().isString(),
   query("hub.challenge").exists().isString(),
