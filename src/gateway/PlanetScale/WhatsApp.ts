@@ -1,5 +1,5 @@
 import { Connection } from "mysql2/promise";
-import { Reminder } from "../../src/entities/Reminder";
+import { Reminder } from "../../entities/Reminder";
 
 export interface ReminderDbStructure {
   id: string;

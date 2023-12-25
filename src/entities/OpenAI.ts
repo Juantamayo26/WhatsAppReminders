@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { User } from "./User";
 import { Reminder } from "./Reminder";
 import moment from "moment";
-import { saveReminder } from "../../gateway/PlanetScale/WhatsApp";
+import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
 import { Connection } from "mysql2/promise";
 
 dotenv.config();

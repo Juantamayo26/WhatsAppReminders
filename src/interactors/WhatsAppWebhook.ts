@@ -1,10 +1,10 @@
 import { Connection } from "mysql2/promise";
-import { onSession } from "../../gateway/PlanetScale/Basics";
+import { onSession } from "../gateway/PlanetScale/Basics";
 import { User } from "../entities/User";
 import {
   getUserByPhoneNumber,
   saveUser,
-} from "../../gateway/PlanetScale/Users";
+} from "../gateway/PlanetScale/Users";
 import { runAssistant } from "../entities/OpenAI";
 import {
   generateWhatsAppText,

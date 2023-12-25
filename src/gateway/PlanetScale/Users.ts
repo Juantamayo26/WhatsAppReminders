@@ -1,5 +1,5 @@
 import { Connection, RowDataPacket } from "mysql2/promise";
-import { User } from "../../src/entities/User";
+import { User } from "../../entities/User";
 
 interface UserDbStructure {
   id: string;
