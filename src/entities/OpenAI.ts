@@ -5,47 +5,12 @@ import { Reminder } from "./Reminder";
 import moment from "moment";
 import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
 import { Connection } from "mysql2/promise";
+import { saveUser } from "../gateway/PlanetScale/Users";
 
 dotenv.config();
 
 const openai = new OpenAI();
 const ASSISTANT_ID = "asst_WNSaVyrLbnfiGbDRtjVcGGub";
-
-export const createAssistant = async () => {
-  const myAssistant = await openai.beta.assistants.create({
-    instructions:
-      "You are a personal math tutor. When asked a question, write and run Python code to answer the question.",
-    name: "WhatsApp Reminders",
-    tools: [
-      {
-        type: "function",
-        function: {
-          name: "createReminder",
-          description: "Create a reminder",
-          parameters: {
-            type: "object",
-            properties: {
-              content: {
-                type: "string",
-                description: "The content of the reminder",
-              },
-              reminder_at: {
-                type: "string",
-                format: "date-time",
-                description:
-                  "The date for the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
-              },
-            },
-            required: ["content, reminder_at"],
-          },
-        },
-      },
-    ],
-    model: "gpt-3.5-turbo-1106",
-  });
-
-  console.log(myAssistant);
-};
 
 export const runAssistant = async (
   user: User,
@@ -55,6 +20,7 @@ export const runAssistant = async (
   if (user.getThreadId() === null) {
     const { id } = await openai.beta.threads.create();
     user.setThreadId(id);
+    await saveUser(user, connection);
   }
 
   await openai.beta.threads.messages.create(user.getThreadId()!, {

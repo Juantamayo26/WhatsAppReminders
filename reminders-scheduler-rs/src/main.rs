@@ -11,11 +11,10 @@ use whatsapp_cloud_api::{
     WhatasppClient,
 };
 
-const TOKEN: &str = "EAAKUIMkAW2ABAIXRnfAaHkBtJjQ05ljcsULektPS0ZCzjW7466WIFjdY7mo7qK6bKjyvFWgNFUybZArFqbWT4dmuIjFZBmN7o7ZAU01yzrFgfYZCLUvANQPP1bNF4d8bZAL0U94dDmIhto8KtLRnmwNFm4WMfEkx6vwqDZCbDDKexcbSfDMZA9Hc";
-const PHONE_ID: &str = "116482591391621";
-
 async fn publish_whataspp_reminders(pool: &MySqlPool) -> Result<(), Box<dyn Error>> {
-    let whatsapp_client = WhatasppClient::new(TOKEN, PHONE_ID);
+    let token = env::var("WHATSAPP_TOKEN").expect("WHATSAPP_TOKEN_NOT_FOUND");
+    let phone_id = env::var("WHATSAPP_PHONE_ID").expect("WHATSAPP_PHONE_ID_NOT_FOUND");
+    let whatsapp_client = WhatasppClient::new(token.as_str(), phone_id.as_str());
     let reminders = Reminder::get_reminders(pool).await?;
 
     println!("{:?}", reminders);
@@ -49,7 +48,7 @@ async fn publish_whataspp_reminders(pool: &MySqlPool) -> Result<(), Box<dyn Erro
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
-    let url = env::var("DATABASE_URL").unwrap();
+    let url = env::var("DATABASE_URL").expect("DATABASE_URL_NOT_FOUND");
     let conn = MySqlPool::connect(&url).await?;
 
     publish_whataspp_reminders(&conn).await?;
