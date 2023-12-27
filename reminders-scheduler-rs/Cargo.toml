@@ -8,6 +8,11 @@ edition = "2021"
 [dependencies]
 dotenv = "0.15.0"
 futures = "0.3.29"
-sqlx = { version = "0.7", features = [ "mysql", "runtime-tokio", "tls-native-tls", "chrono" ] }
+sqlx = { version = "0.7", features = [ "mysql", "runtime-tokio", "tls-rustls", "chrono" ] }
 tokio = { version = "1", features = ["full"] }
 whatsapp-cloud-api = "0.3.1"
+aws_lambda_events = { version = "0.12.0", default-features = false, features = ["cloudwatch_events"] }
+lambda_runtime = "0.8.3"
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt"] }
+openssl = { version = "0.10", features = ["vendored"] }
