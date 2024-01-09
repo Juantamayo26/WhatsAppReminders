@@ -24,22 +24,18 @@ export const saveStructuresWithConflictKey = async (
 
   const columns = Object.keys(structures[0]).map((key) => {
     return `${key}`;
-  });
+  }).join(",");
 
-  const valueFields = `(${Array(columns.length).fill("?").join(",")})`;
-  console.log(valueFields);
   try {
     const sql = `
-        INSERT INTO ${tableName} (${columns.join(",")})
-        VALUES ${valueFields}
+        INSERT INTO ${tableName} (${columns})
+        VALUES ${Array(structures.length).fill("?").join(",")}
       `;
     const values = structures.map((structure) => {
       return Object.keys(structure).map((key) => {
         return (structure as any)[key];
       });
     });
-    console.log(sql);
-    console.log(values);
     return session.query(sql, values);
   } catch (error) {
     console.log(
