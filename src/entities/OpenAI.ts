@@ -6,7 +6,10 @@ import moment from "moment";
 import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
 import { Connection } from "mysql2/promise";
 import { saveUser } from "../gateway/PlanetScale/Users";
-import { getMessagesByUserId } from "../gateway/PlanetScale/Messages";
+import {
+  getMessagesByUserId,
+  saveMessages,
+} from "../gateway/PlanetScale/Messages";
 import {
   ChatCompletionMessageParam,
   ChatCompletionTool,
@@ -49,21 +52,23 @@ const TOOLS: ChatCompletionTool[] = [
 
 export const runCompletion = async (
   user: User,
-  userMessage: string,
+  wppMessage: string,
   connection: Connection,
 ) => {
+  const userMessage = new Message("user", wppMessage, user.getId());
+  let messagesToSave = [userMessage];
   const databaseMessages =
     (await getMessagesByUserId(user.getId(), connection)) || [];
   const messages = [
     ...buildMessagesToOpenAI(databaseMessages),
-    { role: "user", content: userMessage },
+    buildMessagesToOpenAI([userMessage]),
   ];
   console.log(messages);
 
   const stream = openai.beta.chat.completions.stream({
     messages: [
       ...buildMessagesToOpenAI(databaseMessages),
-      { role: "user", content: userMessage },
+      ...buildMessagesToOpenAI([userMessage]),
     ],
     model: "gpt-3.5-turbo-1106",
     tools: TOOLS,
@@ -71,12 +76,18 @@ export const runCompletion = async (
     stream: true,
   });
 
-  stream.on("content", async (delta, snapshot) => {
-    console.log("QUE ES ESTO", delta, snapshot);
-  });
-
   const chatCompletion = await stream.finalChatCompletion();
-  console.log(chatCompletion);
+  console.log(JSON.stringify(chatCompletion, undefined, 2));
+  if (chatCompletion.choices[0].message?.content) {
+    messagesToSave.push(
+      new Message(
+        "assistant",
+        chatCompletion.choices[0].message?.content,
+        user.getId(),
+      ),
+    );
+  }
+  await saveMessages(messagesToSave, connection);
 };
 
 const buildMessagesToOpenAI = (
