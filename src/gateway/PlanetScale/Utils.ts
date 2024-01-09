@@ -31,27 +31,19 @@ export const saveStructuresWithConflictKey = async (
       return `${key}`;
     })
     .join(",");
-  // const conflict = Object.keys(structures[0])
-  //   .map((key) => {
-  //     return `"${key}" = excluded."${key}"`;
-  //   })
-  //   .join(",");
+
+  const valueFields = `(${Array(columns.length).fill("?").join(",")})`;
   try {
-    const sql = format(
-      `
+    const sql = `
         INSERT INTO ${tableName} (${columns})
-        VALUES %L
-      `,
-      //         ON CONFLICT ${onConflictStatement} DO UPDATE
-      //         SET ${conflict}
-      structures.map((structure) => {
-        return Object.keys(structure).map((key) => {
-          return (structure as any)[key];
-        });
-      }),
-    );
-    console.log(sql);
-    return session.query(sql);
+        VALUES ${valueFields}
+      `;
+    const values = structures.map((structure) => {
+      return Object.keys(structure).map((key) => {
+        return (structure as any)[key];
+      });
+    });
+    return session.query(sql, values);
   } catch (error) {
     console.log(
       "COULD_NOT_SAVE_DB_STRUCTURE",
