@@ -60,13 +60,15 @@ export const runCompletion = async (
   const databaseMessages =
     (await getMessagesByUserId(user.getId(), connection)) || [];
   const messages = [
+    { role: "system", content: INSTRUCTIONS },
     ...buildMessagesToOpenAI(databaseMessages),
-    buildMessagesToOpenAI([userMessage]),
+    ...buildMessagesToOpenAI([userMessage]),
   ];
   console.log(messages);
 
   const stream = openai.beta.chat.completions.stream({
     messages: [
+      { role: "system", content: INSTRUCTIONS },
       ...buildMessagesToOpenAI(databaseMessages),
       ...buildMessagesToOpenAI([userMessage]),
     ],

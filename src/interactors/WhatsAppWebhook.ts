@@ -115,10 +115,10 @@ export const sendMessageWebhook = async (
     // TODO: get the timeZone by a chatgpt function
     const timeZone = "America/Bogota";
 
-    const user = await getUserByPhoneNumber(recipientPhoneNumber, connection);
+    let user = await getUserByPhoneNumber(recipientPhoneNumber, connection);
     if (user === null) {
-      const user = new User(recipientPhoneNumber, timeZone);
-      return saveUser(user, connection);
+      user = new User(recipientPhoneNumber, timeZone);
+      await saveUser(user, connection);
     }
 
     if (imageMessage) {
