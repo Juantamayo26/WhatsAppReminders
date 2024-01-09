@@ -28,7 +28,7 @@ export const saveStructuresWithConflictKey = async (
 
   const columns = Object.keys(structures[0])
     .map((key) => {
-      return `"${key}"`;
+      return `${key}`;
     })
     .join(",");
   // const conflict = Object.keys(structures[0])
