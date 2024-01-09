@@ -30,8 +30,8 @@ interface createReminderOpenAI {
 const openai = new OpenAI();
 const INSTRUCTIONS = `
 You are an expert at saving reminders, so the user is going to send you messages and you going to parse that to the createReminder function, the timezone of the user is Colombia/Bogota, 
-in case the user doesn't send the information completely, you going to ask him for more information.
-Take into account the two mandatory fields: the \`reminder_at\` and the \`content\` to remind.`;
+in case the user doesn't send the information completely, you going to ask him for more information, if the user only send the content, you going to ask for the date to be reminder at.
+Take into account the two mandatory fields: the \`reminder_at\` and the \`content\` to be reminded.`;
 const TOOLS: ChatCompletionTool[] = [
   {
     type: "function",
@@ -102,13 +102,13 @@ export const runCompletion = async (
 
     await createRemindersFromOpenAI(reminderParse, user, connection);
     const toolMessage = new Message(
-      "tool",
+      "system",
       `Reminder created and will be remindered at ${reminderParse.reminder_at}`,
       user.getId(),
       toolId,
     );
     messagesToSave.push(toolMessage);
-    console.log(buildMessagesToOpenAI([toolMessage]));
+    // console.log(buildMessagesToOpenAI([toolMessage]));
 
     chatCompletion = await getChatCompletion([
       ...messages,
