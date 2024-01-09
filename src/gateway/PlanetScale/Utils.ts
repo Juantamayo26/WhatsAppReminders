@@ -29,7 +29,7 @@ export const saveStructuresWithConflictKey = async (
     .join(",");
   const conflict = Object.keys(structures[0])
     .map((key) => {
-      return `${key} = excluded.${key}`;
+      return `${key} = VALUES(${key})`;
     })
     .join(",");
 
@@ -37,7 +37,7 @@ export const saveStructuresWithConflictKey = async (
     const sql = `
         INSERT INTO ${tableName} (${columns})
         VALUES ${Array(structures.length).fill("(?)").join(",")}
-        ON CONFLICT ${onConflictStatement} DO UPDATE
+        ON DUPLICATE KEY UPDATE
         SET ${conflict}
       `;
     const values = structures.map((structure) => {
