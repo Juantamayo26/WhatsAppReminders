@@ -11,8 +11,13 @@ import {
   saveMessages,
 } from "../gateway/PlanetScale/Messages";
 import {
+  ChatCompletion,
+  ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
+  ChatCompletionSystemMessageParam,
   ChatCompletionTool,
+  ChatCompletionToolMessageParam,
+  ChatCompletionUserMessageParam,
 } from "openai/resources/chat/completions";
 import { Message } from "./Messages";
 
@@ -50,58 +55,103 @@ const TOOLS: ChatCompletionTool[] = [
   },
 ];
 
-export const runCompletion = async (
-  user: User,
-  wppMessage: string,
-  connection: Connection,
-) => {
-  const userMessage = new Message("user", wppMessage, user.getId());
-  let messagesToSave = [userMessage];
-  const databaseMessages =
-    (await getMessagesByUserId(user.getId(), connection)) || [];
-  const messages = [
-    { role: "system", content: INSTRUCTIONS },
-    ...buildMessagesToOpenAI(databaseMessages),
-    ...buildMessagesToOpenAI([userMessage]),
-  ];
-  console.log(messages);
-
+const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
   const stream = openai.beta.chat.completions.stream({
-    messages: [
-      { role: "system", content: INSTRUCTIONS },
-      ...buildMessagesToOpenAI(databaseMessages),
-      ...buildMessagesToOpenAI([userMessage]),
-      { role: "system", content: `The timezone of the user is ${user.getTimeZone()} and the now is ${moment.tz(user.getTimeZone()).format("YYYY-MM-DD HH:mm:ss.SSS")}` },
-    ],
+    messages,
     model: "gpt-3.5-turbo-1106",
     tools: TOOLS,
     tool_choice: "auto",
     stream: true,
   });
-
   const chatCompletion = await stream.finalChatCompletion();
-  console.log(JSON.stringify(chatCompletion, undefined, 2));
-  if (chatCompletion.choices[0].message?.content) {
-    messagesToSave.push(
-      new Message(
-        "assistant",
-        chatCompletion.choices[0].message?.content,
-        user.getId(),
-      ),
+  return chatCompletion;
+};
+
+export const runCompletion = async (
+  user: User,
+  wppMessage: string,
+  connection: Connection,
+): Promise<Message | null> => {
+  const userMessage = new Message("user", wppMessage, user.getId());
+  let messagesToSave = [userMessage];
+  const databaseMessages =
+    (await getMessagesByUserId(user.getId(), connection)) || [];
+  let messages: ChatCompletionMessageParam[] = [
+    { role: "system", content: INSTRUCTIONS },
+    ...buildMessagesToOpenAI(databaseMessages),
+    ...buildMessagesToOpenAI([userMessage]),
+    {
+      role: "system",
+      content: `The timezone of the user is ${user.getTimeZone()} and the now is ${moment
+        .tz(user.getTimeZone())
+        .format("YYYY-MM-DD HH:mm:ss.SSS")}`,
+    },
+  ];
+
+  let chatCompletion = await getChatCompletion(messages);
+  const choice = chatCompletion.choices[0];
+
+  if (choice.finish_reason === "tool_calls") {
+    const toolId = choice.message.tool_calls![0].id;
+    await createRemindersFromOpenAI(choice, user, connection);
+    const toolMessage = new Message(
+      "tool",
+      "The reminder was created successfully",
+      user.getId(),
+      toolId,
     );
+    messagesToSave.push(toolMessage);
+
+    chatCompletion = await getChatCompletion([
+      ...messages,
+      ...buildMessagesToOpenAI([toolMessage]),
+    ]);
   }
+
+  let assistantMessage = null;
+  if (choice.message?.content) {
+    assistantMessage = new Message(
+      "assistant",
+      choice.message?.content,
+      user.getId(),
+    );
+    messagesToSave.push(assistantMessage);
+  }
+
   await saveMessages(messagesToSave, connection);
+  return assistantMessage;
 };
 
 const buildMessagesToOpenAI = (
   messages: Message[],
 ): ChatCompletionMessageParam[] => {
   return messages.map((message) => {
-    return {
-      role: message.getRole(),
-      content: message.getContent(),
-    };
+    switch (message.getRole()) {
+      case "tool":
+        return {
+          role: message.getRole(),
+          content: message.getContent(),
+          tool_call_id: message.getToolId()!,
+        } as ChatCompletionToolMessageParam;
+      default:
+        return { role: message.getRole(), content: message.getContent() } as
+          | ChatCompletionSystemMessageParam
+          | ChatCompletionUserMessageParam
+          | ChatCompletionAssistantMessageParam;
+    }
   });
+};
+
+const createRemindersFromOpenAI = async (
+  response: ChatCompletion.Choice,
+  user: User,
+  connection: Connection,
+) => {
+  const functionArguments = response.message!.tool_calls![0].function.arguments;
+  const reminderParse = JSON.parse(functionArguments) as createReminderOpenAI;
+  const { content, reminder_at } = reminderParse;
+  const reminder = new Reminder(user.getId(), moment(reminder_at), content);
+  await saveReminder(reminder, connection);
 };
 
 export const runAssistant = async (

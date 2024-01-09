@@ -1,7 +1,7 @@
 import moment from "moment";
 import { v4 as uuid } from "uuid";
 
-type RoleType = "system" | "user" | "assistant";
+type RoleType = "system" | "user" | "assistant" | "tool";
 
 export class Message {
   private id: string;
@@ -10,6 +10,7 @@ export class Message {
   private createdAt: string;
   private userId: string;
   private wasUpdated: boolean;
+  private toolId: string | undefined;
 
   public static loadMessage(
     id: string,
@@ -17,20 +18,27 @@ export class Message {
     content: string,
     createdAt: string,
     userId: string,
+    toolId: string | undefined,
   ): Message {
-    const message = new Message(role, content, userId);
+    const message = new Message(role, content, userId, toolId);
     message.setId(id);
     message.setCreatedAt(createdAt);
     return message;
   }
 
-  constructor(role: RoleType, content: string, userId: string) {
+  constructor(
+    role: RoleType,
+    content: string,
+    userId: string,
+    toolId?: string,
+  ) {
     this.id = uuid();
     this.role = role;
     this.content = content;
     this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
     this.userId = userId;
     this.wasUpdated = true;
+    this.toolId = toolId;
   }
 
   public setId(id: string) {
@@ -68,5 +76,9 @@ export class Message {
 
   public getCreatedAt(): string {
     return this.createdAt;
+  }
+
+  public getToolId(): string | undefined {
+    return this.toolId;
   }
 }

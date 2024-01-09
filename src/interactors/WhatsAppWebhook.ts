@@ -124,14 +124,13 @@ export const sendMessageWebhook = async (
     if (imageMessage) {
       console.log("THIS IS A IMAGE");
     } else {
-      await runCompletion(user, textMessage, connection);
-      // const response = await runAssistant(user, textMessage, connection);
-      // if (response) {
-      //   await sendWhatsAppMessage(
-      //     accountId,
-      //     generateWhatsAppText(response, recipientPhoneNumber),
-      //   );
-      // }
+      const message = await runCompletion(user, textMessage, connection);
+      if (message) {
+        await sendWhatsAppMessage(
+          accountId,
+          generateWhatsAppText(message.getContent(), recipientPhoneNumber),
+        );
+      }
     }
   });
 };

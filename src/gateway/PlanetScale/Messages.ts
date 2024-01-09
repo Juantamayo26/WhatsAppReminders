@@ -8,6 +8,7 @@ export interface MessageDbStructure {
   content: string;
   created_at: string;
   user_id: string;
+  tool_id: string | undefined;
 }
 
 export const saveMessages = async (
@@ -41,6 +42,7 @@ const getMessageStructure = (message: Message): MessageDbStructure => {
     content: message.getContent(),
     created_at: message.getCreatedAt(),
     user_id: message.getUserId(),
+    tool_id: message.getToolId(),
   };
 };
 
@@ -51,5 +53,6 @@ const buildMessageFromRow = (row: any): Message => {
     row.content,
     row.created_at,
     row.user_id,
+    row.tool_id,
   );
 };
