@@ -1,4 +1,4 @@
-import { Connection, format } from "mysql2/promise";
+import { Connection } from "mysql2/promise";
 import { UserDbStructure } from "./Users";
 import { MessageDbStructure } from "./Messages";
 
@@ -27,11 +27,18 @@ export const saveStructuresWithConflictKey = async (
       return `${key}`;
     })
     .join(",");
+  const conflict = Object.keys(structures[0])
+    .map((key) => {
+      return `${key} = excluded.${key}`;
+    })
+    .join(",");
 
   try {
     const sql = `
         INSERT INTO ${tableName} (${columns})
         VALUES ${Array(structures.length).fill("(?)").join(",")}
+        ON CONFLICT ${onConflictStatement} DO UPDATE
+        SET ${conflict}
       `;
     const values = structures.map((structure) => {
       return Object.keys(structure).map((key) => {
