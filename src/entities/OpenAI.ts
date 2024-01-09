@@ -97,14 +97,18 @@ export const runCompletion = async (
 
   if (choice.finish_reason === "tool_calls") {
     const toolId = choice.message.tool_calls![0].id;
-    await createRemindersFromOpenAI(choice, user, connection);
+    const functionArguments = choice.message!.tool_calls![0].function.arguments;
+    const reminderParse = JSON.parse(functionArguments) as createReminderOpenAI;
+
+    await createRemindersFromOpenAI(reminderParse, user, connection);
     const toolMessage = new Message(
       "tool",
-      "The reminder was created successfully",
+      `Reminder created and will be remindered at ${reminderParse.reminder_at}`,
       user.getId(),
       toolId,
     );
     messagesToSave.push(toolMessage);
+    console.log(buildMessagesToOpenAI([toolMessage]));
 
     chatCompletion = await getChatCompletion([
       ...messages,
@@ -147,12 +151,10 @@ const buildMessagesToOpenAI = (
 };
 
 const createRemindersFromOpenAI = async (
-  response: ChatCompletion.Choice,
+  reminderParse: createReminderOpenAI,
   user: User,
   connection: Connection,
 ) => {
-  const functionArguments = response.message!.tool_calls![0].function.arguments;
-  const reminderParse = JSON.parse(functionArguments) as createReminderOpenAI;
   const { content, reminder_at } = reminderParse;
   const reminder = new Reminder(user.getId(), moment(reminder_at), content);
   await saveReminder(reminder, connection);
