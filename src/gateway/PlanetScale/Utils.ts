@@ -22,14 +22,16 @@ export const saveStructuresWithConflictKey = async (
     return;
   }
 
-  const columns = Object.keys(structures[0]).map((key) => {
-    return `${key}`;
-  }).join(",");
+  const columns = Object.keys(structures[0])
+    .map((key) => {
+      return `${key}`;
+    })
+    .join(",");
 
   try {
     const sql = `
         INSERT INTO ${tableName} (${columns})
-        VALUES ${Array(structures.length).fill("?").join(",")}
+        VALUES ${Array(structures.length).fill("(?)").join(",")}
       `;
     const values = structures.map((structure) => {
       return Object.keys(structure).map((key) => {
