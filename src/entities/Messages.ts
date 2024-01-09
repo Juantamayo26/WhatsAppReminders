@@ -9,7 +9,7 @@ export class Message {
   private userId: string;
   private wasUpdated: boolean;
 
-  public loadMessage(
+  public static loadMessage(
     id: string,
     role: string,
     content: string,

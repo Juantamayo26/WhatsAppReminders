@@ -17,10 +17,10 @@ const ASSISTANT_ID = "asst_WNSaVyrLbnfiGbDRtjVcGGub";
 //   content: string,
 //   connection: Connection,
 // ) => {
-//   const messages = 
+//   const messages =
 //   if (user.getThreadId() !== null) {
 //   }
-// 
+//
 // }
 
 export const runAssistant = async (
