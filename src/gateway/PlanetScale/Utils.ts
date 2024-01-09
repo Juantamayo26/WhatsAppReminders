@@ -27,6 +27,7 @@ export const saveStructuresWithConflictKey = async (
   });
 
   const valueFields = `(${Array(columns.length).fill("?").join(",")})`;
+  console.log(valueFields);
   try {
     const sql = `
         INSERT INTO ${tableName} (${columns.join(",")})
@@ -37,6 +38,8 @@ export const saveStructuresWithConflictKey = async (
         return (structure as any)[key];
       });
     });
+    console.log(sql);
+    console.log(values);
     return session.query(sql, values);
   } catch (error) {
     console.log(
