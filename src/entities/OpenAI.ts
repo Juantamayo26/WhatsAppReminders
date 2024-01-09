@@ -12,6 +12,17 @@ dotenv.config();
 const openai = new OpenAI();
 const ASSISTANT_ID = "asst_WNSaVyrLbnfiGbDRtjVcGGub";
 
+// export const runCompletion = async (
+//   user: User,
+//   content: string,
+//   connection: Connection,
+// ) => {
+//   const messages = 
+//   if (user.getThreadId() !== null) {
+//   }
+// 
+// }
+
 export const runAssistant = async (
   user: User,
   content: string,

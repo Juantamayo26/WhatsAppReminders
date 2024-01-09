@@ -1,7 +1,8 @@
 import { Connection, RowDataPacket } from "mysql2/promise";
 import { User } from "../../entities/User";
+import { saveStructures } from "./Utils";
 
-interface UserDbStructure {
+export interface UserDbStructure {
   id: string;
   recipient_phone_number: string;
   active: boolean;
@@ -15,16 +16,7 @@ export const saveUser = async (
   connection: Connection,
 ): Promise<void> => {
   const userStructure = getUserStructure(user);
-  const columns = Object.keys(userStructure)
-    .map((key) => {
-      return `${key}`;
-    })
-    .join(",");
-  const query = `INSERT INTO users (${columns}) VALUES (?, ?, ?, ?, ?, ?)`;
-  const values = Object.keys(userStructure).map((key) => {
-    return (userStructure as any)[key];
-  });
-  await connection.query(query, values);
+  return saveStructures([userStructure], "users", connection);
 };
 
 export const getUserByPhoneNumber = async (
