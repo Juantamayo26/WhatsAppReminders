@@ -22,20 +22,14 @@ export const saveStructuresWithConflictKey = async (
     return;
   }
 
-  // structures.forEach((structure) => {
-  //   (structure as any).updated_at = moment.utc().toDate();
-  // });
-
-  const columns = Object.keys(structures[0])
-    .map((key) => {
-      return `${key}`;
-    })
-    .join(",");
+  const columns = Object.keys(structures[0]).map((key) => {
+    return `${key}`;
+  });
 
   const valueFields = `(${Array(columns.length).fill("?").join(",")})`;
   try {
     const sql = `
-        INSERT INTO ${tableName} (${columns})
+        INSERT INTO ${tableName} (${columns.join(",")})
         VALUES ${valueFields}
       `;
     const values = structures.map((structure) => {
