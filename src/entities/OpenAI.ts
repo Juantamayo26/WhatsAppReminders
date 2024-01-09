@@ -6,22 +6,89 @@ import moment from "moment";
 import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
 import { Connection } from "mysql2/promise";
 import { saveUser } from "../gateway/PlanetScale/Users";
+import { getMessagesByUserId } from "../gateway/PlanetScale/Messages";
+import {
+  ChatCompletionMessageParam,
+  ChatCompletionTool,
+} from "openai/resources/chat/completions";
+import { Message } from "./Messages";
 
 dotenv.config();
 
 const openai = new OpenAI();
 const ASSISTANT_ID = "asst_WNSaVyrLbnfiGbDRtjVcGGub";
+const INSTRUCTIONS = `
+You are an expert at saving reminders, so the user is going to send you messages and you going to parse that to the createReminder function, the timezone of the user is Colombia/Bogota, in case the user doesn't send the information completely, you going to ask him for more information.
+Take into account the two mandatory fields: the \`reminder_at\` and the \`content\` to remind.
+`;
+const TOOLS: ChatCompletionTool[] = [
+  {
+    type: "function",
+    function: {
+      name: "createReminder",
+      description: "Create a reminder in the database",
+      parameters: {
+        type: "object",
+        properties: {
+          content: {
+            type: "string",
+            description: "The content or text of the reminder",
+          },
+          reminder_at: {
+            type: "string",
+            format: "date-time",
+            description:
+              "The date and time of the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
+          },
+        },
+        required: ["content", "reminder_at"],
+      },
+    },
+  },
+];
 
-// export const runCompletion = async (
-//   user: User,
-//   content: string,
-//   connection: Connection,
-// ) => {
-//   const messages =
-//   if (user.getThreadId() !== null) {
-//   }
-//
-// }
+export const runCompletion = async (
+  user: User,
+  userMessage: string,
+  connection: Connection,
+) => {
+  const databaseMessages =
+    (await getMessagesByUserId(user.getId(), connection)) || [];
+  const messages = [
+    ...buildMessagesToOpenAI(databaseMessages),
+    { role: "user", content: userMessage },
+  ];
+  console.log(messages);
+
+  const stream = openai.beta.chat.completions.stream({
+    messages: [
+      ...buildMessagesToOpenAI(databaseMessages),
+      { role: "user", content: userMessage },
+    ],
+    model: "gpt-3.5-turbo-1106",
+    tools: TOOLS,
+    tool_choice: "auto",
+    stream: true,
+  });
+
+  stream.on("content", async (delta, snapshot) => {
+    console.log("QUE ES ESTO", delta, snapshot);
+  });
+
+  const chatCompletion = await stream.finalChatCompletion();
+  console.log(chatCompletion);
+};
+
+const buildMessagesToOpenAI = (
+  messages: Message[],
+): ChatCompletionMessageParam[] => {
+  return messages.map((message) => {
+    return {
+      role: message.getRole(),
+      content: message.getContent(),
+    };
+  });
+};
 
 export const runAssistant = async (
   user: User,

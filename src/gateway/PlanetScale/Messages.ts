@@ -24,7 +24,7 @@ export const getMessagesByUserId = async (
   userId: string,
   connection: Connection,
 ) => {
-  const query = `SELECT * FROM messages WHERE user_id = ?`;
+  const query = `SELECT * FROM messages WHERE user_id = ? ORDER BY created_at`;
   const [rows] = await connection.query<RowDataPacket[]>(query, [userId]);
 
   if (rows.length === 0) {

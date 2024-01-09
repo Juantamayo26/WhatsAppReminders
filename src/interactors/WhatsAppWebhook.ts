@@ -2,7 +2,7 @@ import { Connection } from "mysql2/promise";
 import { onSession } from "../gateway/PlanetScale/Basics";
 import { User } from "../entities/User";
 import { getUserByPhoneNumber, saveUser } from "../gateway/PlanetScale/Users";
-import { runAssistant } from "../entities/OpenAI";
+import { runAssistant, runCompletion } from "../entities/OpenAI";
 import {
   generateWhatsAppText,
   sendWhatsAppMessage,
@@ -124,13 +124,14 @@ export const sendMessageWebhook = async (
     if (imageMessage) {
       console.log("THIS IS A IMAGE");
     } else {
-      const response = await runAssistant(user, textMessage, connection);
-      if (response) {
-        await sendWhatsAppMessage(
-          accountId,
-          generateWhatsAppText(response, recipientPhoneNumber),
-        );
-      }
+      await runCompletion(user, textMessage, connection);
+      // const response = await runAssistant(user, textMessage, connection);
+      // if (response) {
+      //   await sendWhatsAppMessage(
+      //     accountId,
+      //     generateWhatsAppText(response, recipientPhoneNumber),
+      //   );
+      // }
     }
   });
 };

@@ -1,9 +1,11 @@
 import moment from "moment";
 import { v4 as uuid } from "uuid";
 
+type RoleType = "system" | "user" | "assistant";
+
 export class Message {
   private id: string;
-  private role: string;
+  private role: RoleType;
   private content: string;
   private createdAt: string;
   private userId: string;
@@ -11,7 +13,7 @@ export class Message {
 
   public static loadMessage(
     id: string,
-    role: string,
+    role: RoleType,
     content: string,
     createdAt: string,
     userId: string,
@@ -22,7 +24,7 @@ export class Message {
     return message;
   }
 
-  constructor(role: string, content: string, userId: string) {
+  constructor(role: RoleType, content: string, userId: string) {
     this.id = uuid();
     this.role = role;
     this.content = content;
@@ -52,7 +54,7 @@ export class Message {
     return this.id;
   }
 
-  public getRole(): string {
+  public getRole(): RoleType {
     return this.role;
   }
 
