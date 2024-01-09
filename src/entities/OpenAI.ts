@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import dotenv from "dotenv";
 import { User } from "./User";
 import { Reminder } from "./Reminder";
-import moment from "moment";
+import moment from "moment-timezone";
 import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
 import { Connection } from "mysql2/promise";
 import { saveUser } from "../gateway/PlanetScale/Users";
@@ -21,9 +21,9 @@ dotenv.config();
 const openai = new OpenAI();
 const ASSISTANT_ID = "asst_WNSaVyrLbnfiGbDRtjVcGGub";
 const INSTRUCTIONS = `
-You are an expert at saving reminders, so the user is going to send you messages and you going to parse that to the createReminder function, the timezone of the user is Colombia/Bogota, in case the user doesn't send the information completely, you going to ask him for more information.
-Take into account the two mandatory fields: the \`reminder_at\` and the \`content\` to remind.
-`;
+You are an expert at saving reminders, so the user is going to send you messages and you going to parse that to the createReminder function, the timezone of the user is Colombia/Bogota, 
+in case the user doesn't send the information completely, you going to ask him for more information.
+Take into account the two mandatory fields: the \`reminder_at\` and the \`content\` to remind.`;
 const TOOLS: ChatCompletionTool[] = [
   {
     type: "function",
@@ -71,6 +71,7 @@ export const runCompletion = async (
       { role: "system", content: INSTRUCTIONS },
       ...buildMessagesToOpenAI(databaseMessages),
       ...buildMessagesToOpenAI([userMessage]),
+      { role: "system", content: `The timezone of the user is ${user.getTimeZone()} and the now is ${moment.tz(user.getTimeZone()).format("YYYY-MM-DD HH:mm:ss.SSS")}` },
     ],
     model: "gpt-3.5-turbo-1106",
     tools: TOOLS,
