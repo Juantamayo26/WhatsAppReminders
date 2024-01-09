@@ -50,6 +50,7 @@ export const saveStructuresWithConflictKey = async (
         });
       }),
     );
+    console.log(sql);
     return session.query(sql);
   } catch (error) {
     console.log(
