@@ -38,7 +38,7 @@ export const saveStructuresWithConflictKey = async (
         INSERT INTO ${tableName} (${columns})
         VALUES ${Array(structures.length).fill("(?)").join(",")}
         ON DUPLICATE KEY UPDATE
-        SET ${conflict}
+        ${conflict}
       `;
     const values = structures.map((structure) => {
       return Object.keys(structure).map((key) => {
