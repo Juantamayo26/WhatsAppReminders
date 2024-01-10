@@ -128,7 +128,7 @@ export const sendMessageWebhook = async (
       if (message) {
         await sendWhatsAppMessage(
           accountId,
-          generateWhatsAppText(message.getContent(), recipientPhoneNumber),
+          generateWhatsAppText(message.getContent()!, recipientPhoneNumber),
         );
       }
     }
