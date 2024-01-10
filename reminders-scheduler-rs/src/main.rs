@@ -22,7 +22,7 @@ async fn function_handler(_event: LambdaEvent<CloudWatchEvent>) -> Result<(), Er
     let whatsapp_client = WhatasppClient::new(token.as_str(), phone_id.as_str());
     let reminders = Reminder::get_reminders(&pool).await?;
 
-    println!("REMINDERS: {:?}", reminders);
+    // println!("REMINDERS: {:?}", reminders);
 
     // TODO: Change this to a template
     let messages: Vec<Message> = reminders
@@ -39,14 +39,14 @@ async fn function_handler(_event: LambdaEvent<CloudWatchEvent>) -> Result<(), Er
         .collect();
 
     // TODO: TOO MUCH REQUESTS
-    let response = join_all(
+    let _response = join_all(
         messages
             .iter()
             .map(|message| whatsapp_client.send_message(message)),
     )
     .await;
+    Reminder::mark_as_done(&reminders, &pool).await?;
 
-    println!("{:?}", response);
     Ok(())
 }
 

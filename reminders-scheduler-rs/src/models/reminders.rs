@@ -11,14 +11,22 @@ pub struct Reminder {
     pub message: String,
     pub user: String,
     pub recipient_phone_number: String,
-    pub done: bool,
+    pub done: i8,
 }
 
 impl Reminder {
     pub async fn get_reminders(pool: &MySqlPool) -> Result<Vec<Reminder>, sqlx::Error> {
-        let reminders = sqlx::query_as(
+        let reminders = sqlx::query_as!(
+            Reminder,
             r#"
-            SELECT * 
+            SELECT 
+                reminders.id AS id, 
+                reminder_at, 
+                reminders.created_at, 
+                message, 
+                users.id AS user, 
+                recipient_phone_number, 
+                done
             FROM reminders 
             JOIN users ON users.id = reminders.user
             WHERE done = 0 AND reminder_at < NOW()"#,
@@ -29,16 +37,21 @@ impl Reminder {
         Ok(reminders)
     }
 
-    // pub async fn update_status(reminders: Vec<Self>, pool: &MySqlPool) -> Result<(), sqlx::Error> {
-    //     let ids: Vec<String> = reminders.iter().map(|i| i.id).collect();
-    //     sqlx::query(
-    //         r#"
-    //         UPDATE reminders
-    //         SET done = (every IS NULL)
-    //         WHERE id = ANY($1)"#)
-    //     .bind(&ids)
-    //     .execute(pool)
-    //     .await?;
-    //     Ok(())
-    // }
+    pub async fn mark_as_done(reminders: &Vec<Self>, pool: &MySqlPool) -> Result<(), sqlx::Error> {
+        if reminders.is_empty() {
+            return Ok(());
+        }
+
+        let params = format!("?{}", ", ?".repeat(reminders.len() - 1));
+        let query_str = format!("UPDATE reminders SET done = 1 WHERE id IN ( { } )", params);
+
+        let mut query = sqlx::query(&query_str);
+        for i in reminders {
+            query = query.bind(i.id.clone());
+        }
+
+        query.execute(pool).await?;
+
+        Ok(())
+    }
 }
