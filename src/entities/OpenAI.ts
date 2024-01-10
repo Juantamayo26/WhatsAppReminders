@@ -100,6 +100,12 @@ export const runCompletion = async (
   const choice = chatCompletion.choices[0];
 
   if (choice.finish_reason === "tool_calls") {
+    // TODO: Runs all the tools
+    // const tools = choice.message.tool_calls;
+    // for (const tool of tools!) {
+    //   await runTool(tool);
+    // }
+
     const toolId = choice.message.tool_calls![0].id;
     const toolCall = choice.message!.tool_calls![0];
 
@@ -121,13 +127,11 @@ export const runCompletion = async (
       user.getId(),
       toolId,
     );
-    messagesToSave.push(assitantFunction);
-    messagesToSave.push(toolMessage);
+    messagesToSave.push(assitantFunction, toolMessage);
 
     chatCompletion = await getChatCompletion([
       ...messages,
-      ...buildMessagesToOpenAI([assitantFunction]),
-      ...buildMessagesToOpenAI([toolMessage]),
+      ...buildMessagesToOpenAI([assitantFunction, toolMessage]),
     ]);
   }
 

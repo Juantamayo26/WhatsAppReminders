@@ -9,7 +9,7 @@ use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use models::reminders::Reminder;
 use sqlx::MySqlPool;
 use whatsapp_cloud_api::{
-    models::{Message, Text},
+    models::{Component, Message, Parameter, Template},
     WhatasppClient,
 };
 
@@ -22,19 +22,13 @@ async fn function_handler(_event: LambdaEvent<CloudWatchEvent>) -> Result<(), Er
     let whatsapp_client = WhatasppClient::new(token.as_str(), phone_id.as_str());
     let reminders = Reminder::get_reminders(&pool).await?;
 
-    // println!("REMINDERS: {:?}", reminders);
-
-    // TODO: Change this to a template
     let messages: Vec<Message> = reminders
         .iter()
         .map(|reminder| {
-            Message::from_text(
-                &reminder.recipient_phone_number,
-                Text {
-                    body: reminder.message.clone(),
-                    preview_url: None,
-                },
-            )
+            let parameter = Parameter::from_text(&reminder.message.as_str());
+            let component = Component::with_parameters("body", vec![parameter]);
+            let template = Template::with_components("recordatorio", "es", vec![component]);
+            Message::from_template(&reminder.recipient_phone_number, template)
         })
         .collect();
 
