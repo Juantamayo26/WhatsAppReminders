@@ -9,4 +9,4 @@
 ## Release ##
 
 Run: 
-`cargo lambda deploy --env-file .env`
+`cargo lambda build --release && cargo lambda deploy --env-file .env`

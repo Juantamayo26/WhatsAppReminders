@@ -71,7 +71,7 @@ const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
     stream: true,
   });
   const chatCompletion = await stream.finalChatCompletion();
-  console.log(JSON.stringify(chatCompletion, null, 2));
+  console.log(JSON.stringify(chatCompletion));
   return chatCompletion;
 };
 
