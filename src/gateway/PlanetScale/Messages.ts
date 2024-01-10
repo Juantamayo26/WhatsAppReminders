@@ -59,6 +59,6 @@ const buildMessageFromRow = (row: any): Message => {
     row.created_at,
     row.user_id,
     row.tool_id,
-    row.tool_call ? JSON.parse(row.tool_call) : undefined,
+    row.tool_call,
   );
 };
