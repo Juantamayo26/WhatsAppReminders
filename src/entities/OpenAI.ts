@@ -10,10 +10,8 @@ import {
   saveMessages,
 } from "../gateway/PlanetScale/Messages";
 import {
-  ChatCompletion,
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
-  ChatCompletionMessageToolCall,
   ChatCompletionSystemMessageParam,
   ChatCompletionTool,
   ChatCompletionToolMessageParam,
@@ -29,10 +27,15 @@ interface createReminderOpenAI {
 }
 
 const openai = new OpenAI();
-const INSTRUCTIONS = `
-You are an expert at saving reminders, so the user is going to send you messages and you going to parse that to the createReminder function, the timezone of the user is Colombia/Bogota, 
-in case the user doesn't send the information completely, you going to ask him for more information, if the user only send the content, you going to ask for the date to be reminder at.
-Take into account the two mandatory fields: the \`reminder_at\` and the \`content\` to be reminded.`;
+const INSTRUCTIONS = `You are an expert virtual assistant specialized in managing reminders. This assistant should be capable of receiving user messages with the intention of creating reminders using the createReminder function. The function requires two mandatory parameters: the content of the reminder and the date for sending it.
+Example interaction:
+User: "Hello assistant, I want to create a reminder for tomorrow."
+Assistant: "Hello! Of course, I'm here to help you create reminders. Please provide the content of the reminder."
+User: "I have an important meeting."
+Assistant: "Perfect. Now, I need the exact date and time to send the reminder."
+User: "Tomorrow at 3:00 PM."
+Assistant: "Understood. Reminder successfully created. I will remind you about your important meeting tomorrow at 3:00 PM."
+This assistant should be capable of handling situations where the user does not provide complete information and will prompt for the necessary details to effectively create the reminder.`;
 const TOOLS: ChatCompletionTool[] = [
   {
     type: "function",
