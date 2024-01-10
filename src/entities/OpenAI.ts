@@ -123,6 +123,7 @@ export const runCompletion = async (
 
     chatCompletion = await getChatCompletion([
       ...messages,
+      ...buildMessagesToOpenAI([assitantFunction]),
       ...buildMessagesToOpenAI([toolMessage]),
     ]);
   }
