@@ -1,4 +1,5 @@
 import moment from "moment";
+import { ChatCompletionMessageToolCall } from "openai/resources";
 import { v4 as uuid } from "uuid";
 
 type RoleType = "system" | "user" | "assistant" | "tool";
@@ -6,11 +7,12 @@ type RoleType = "system" | "user" | "assistant" | "tool";
 export class Message {
   private id: string;
   private role: RoleType;
-  private content: string;
+  private content: string | undefined;
   private createdAt: string;
   private userId: string;
   private wasUpdated: boolean;
   private toolId: string | undefined;
+  private toolCall: ChatCompletionMessageToolCall | undefined;
 
   public static loadMessage(
     id: string,
@@ -18,9 +20,10 @@ export class Message {
     content: string,
     createdAt: string,
     userId: string,
-    toolId: string | undefined,
+    toolId?: string,
+    toolCall?: ChatCompletionMessageToolCall,
   ): Message {
-    const message = new Message(role, content, userId, toolId);
+    const message = new Message(role, content, userId, toolId, toolCall);
     message.setId(id);
     message.setCreatedAt(createdAt);
     return message;
@@ -28,9 +31,10 @@ export class Message {
 
   constructor(
     role: RoleType,
-    content: string,
+    content: string | undefined,
     userId: string,
     toolId?: string,
+    toolCall?: ChatCompletionMessageToolCall,
   ) {
     this.id = uuid();
     this.role = role;
@@ -39,6 +43,7 @@ export class Message {
     this.userId = userId;
     this.wasUpdated = true;
     this.toolId = toolId;
+    this.toolCall = toolCall;
   }
 
   public setId(id: string) {
@@ -66,7 +71,7 @@ export class Message {
     return this.role;
   }
 
-  public getContent(): string {
+  public getContent(): string | undefined {
     return this.content;
   }
 
@@ -80,5 +85,9 @@ export class Message {
 
   public getToolId(): string | undefined {
     return this.toolId;
+  }
+
+  public getToolCall(): ChatCompletionMessageToolCall | undefined {
+    return this.toolCall;
   }
 }

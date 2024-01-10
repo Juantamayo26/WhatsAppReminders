@@ -13,6 +13,7 @@ import {
   ChatCompletion,
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
+  ChatCompletionMessageToolCall,
   ChatCompletionSystemMessageParam,
   ChatCompletionTool,
   ChatCompletionToolMessageParam,
@@ -97,18 +98,28 @@ export const runCompletion = async (
 
   if (choice.finish_reason === "tool_calls") {
     const toolId = choice.message.tool_calls![0].id;
-    const functionArguments = choice.message!.tool_calls![0].function.arguments;
-    const reminderParse = JSON.parse(functionArguments) as createReminderOpenAI;
+    const toolCall = choice.message!.tool_calls![0];
+
+    const assitantFunction = new Message(
+      "assistant",
+      undefined,
+      user.getId(),
+      toolId,
+      toolCall,
+    );
+    const reminderParse = JSON.parse(
+      toolCall.function.arguments,
+    ) as createReminderOpenAI;
 
     await createRemindersFromOpenAI(reminderParse, user, connection);
     const toolMessage = new Message(
-      "system",
+      "tool",
       `Reminder created and will be remindered at ${reminderParse.reminder_at}`,
       user.getId(),
       toolId,
     );
+    messagesToSave.push(assitantFunction);
     messagesToSave.push(toolMessage);
-    // console.log(buildMessagesToOpenAI([toolMessage]));
 
     chatCompletion = await getChatCompletion([
       ...messages,
@@ -141,11 +152,18 @@ const buildMessagesToOpenAI = (
           content: message.getContent(),
           tool_call_id: message.getToolId()!,
         } as ChatCompletionToolMessageParam;
+      case "assistant":
+        return {
+          role: message.getRole(),
+          content: message.getContent(),
+          tool_calls: message.getToolCall()
+            ? [message.getToolCall()!]
+            : undefined,
+        } as ChatCompletionAssistantMessageParam;
       default:
         return { role: message.getRole(), content: message.getContent() } as
           | ChatCompletionSystemMessageParam
-          | ChatCompletionUserMessageParam
-          | ChatCompletionAssistantMessageParam;
+          | ChatCompletionUserMessageParam;
     }
   });
 };

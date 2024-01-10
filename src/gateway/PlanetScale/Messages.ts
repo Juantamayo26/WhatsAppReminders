@@ -5,10 +5,11 @@ import { saveStructures } from "./Utils";
 export interface MessageDbStructure {
   id: string;
   role: string;
-  content: string;
+  content: string | undefined;
   created_at: string;
   user_id: string;
   tool_id: string | undefined;
+  tool_call: string | undefined;
 }
 
 export const saveMessages = async (
@@ -43,6 +44,9 @@ const getMessageStructure = (message: Message): MessageDbStructure => {
     created_at: message.getCreatedAt(),
     user_id: message.getUserId(),
     tool_id: message.getToolId(),
+    tool_call: message.getToolCall()
+      ? JSON.stringify(message.getToolCall())
+      : undefined,
   };
 };
 
@@ -54,5 +58,6 @@ const buildMessageFromRow = (row: any): Message => {
     row.created_at,
     row.user_id,
     row.tool_id,
+    row.tool_call ? JSON.parse(row.tool_call) : undefined,
   );
 };
