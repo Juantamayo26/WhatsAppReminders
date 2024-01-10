@@ -33,6 +33,7 @@ export const getMessagesByUserId = async (
     return null;
   }
 
+  console.log(JSON.stringify(rows));
   return rows.map(buildMessageFromRow);
 };
 
