@@ -117,10 +117,10 @@ export const runCompletion = async (
   }
 
   let assistantMessage = null;
-  if (choice.message?.content) {
+  if (chatCompletion.choices[0].message?.content) {
     assistantMessage = new Message(
       "assistant",
-      choice.message?.content,
+      chatCompletion.choices[0].message.content,
       user.getId(),
     );
     messagesToSave.push(assistantMessage);
@@ -156,6 +156,10 @@ const createRemindersFromOpenAI = async (
   connection: Connection,
 ) => {
   const { content, reminder_at } = reminderParse;
-  const reminder = new Reminder(user.getId(), moment(reminder_at), content);
+  const reminder = new Reminder(
+    user.getId(),
+    moment.tz(reminder_at, user.getTimeZone()).utc(),
+    content,
+  );
   await saveReminder(reminder, connection);
 };
