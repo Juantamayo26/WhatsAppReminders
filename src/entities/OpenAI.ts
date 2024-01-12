@@ -184,7 +184,7 @@ const createRemindersFromOpenAI = async (
   const { content, reminder_at } = reminderParse;
   const reminder = new Reminder(
     user.getId(),
-    moment.tz(reminder_at, user.getTimeZone()).utc(),
+    moment.tz(reminder_at, user.getTimeZone()).utc().subtract(1, "minutes"),
     content,
   );
   await saveReminder(reminder, connection);
