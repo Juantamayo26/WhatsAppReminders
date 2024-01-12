@@ -5,6 +5,7 @@ import { getUserByPhoneNumber, saveUser } from "../gateway/PlanetScale/Users";
 import { runCompletion } from "../entities/OpenAI";
 import {
   generateWhatsAppText,
+  getTranslationFromAudioId,
   sendWhatsAppMessage,
 } from "../entities/WhatsApp";
 
@@ -48,8 +49,16 @@ export interface WhatsAppMessage {
   timestamp: string;
   text?: { body: string };
   image?: WhatsAppImageBody;
+  audio?: WhatsAppAudioBody;
   type: string;
   errors?: WhatsAppError[];
+}
+
+export interface WhatsAppAudioBody {
+  id: string;
+  sha256: string;
+  voice: boolean;
+  mime_type: string;
 }
 
 export interface WhatsAppStatus {
@@ -103,13 +112,18 @@ export const sendMessageWebhook = async (
     return;
   }
 
-  const textMessage = whatsAppMessage.text?.body!;
-  const imageMessage = whatsAppMessage.image;
-
   const { phoneNumberId: accountId } =
     payload.entry[0].changes[0].value.metadata;
   const { recipientPhoneNumber } =
     payload.entry[0].changes[0].value.contacts![0];
+  const audioMessage = whatsAppMessage.audio;
+  let textMessage = whatsAppMessage.text?.body;
+
+  if (audioMessage) {
+    console.log("PROCCESSING_AUDIO");
+    textMessage = await getTranslationFromAudioId(audioMessage.id);
+    console.log(`THE AUDIO IS: ${textMessage}`);
+  }
 
   await onSession(async (connection: Connection) => {
     // TODO: get the timeZone by a chatgpt function
@@ -121,16 +135,12 @@ export const sendMessageWebhook = async (
       await saveUser(user, connection);
     }
 
-    if (imageMessage) {
-      console.log("THIS IS A IMAGE");
-    } else {
-      const message = await runCompletion(user, textMessage, connection);
-      if (message) {
-        await sendWhatsAppMessage(
-          accountId,
-          generateWhatsAppText(message.getContent()!, recipientPhoneNumber),
-        );
-      }
+    const message = await runCompletion(user, textMessage!, connection);
+    if (message) {
+      await sendWhatsAppMessage(
+        accountId,
+        generateWhatsAppText(message.getContent()!, recipientPhoneNumber),
+      );
     }
   });
 };

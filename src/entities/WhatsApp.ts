@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { getTranscription } from "./Whisper";
 
 dotenv.config();
 
@@ -66,6 +67,15 @@ export interface WhatsAppResponse {
 }
 
 interface Message {
+  id: string;
+}
+
+interface WhatsAppMediaResponse {
+  messaging_product: string;
+  url: string;
+  mime_type: string;
+  sha256: string;
+  file_size: string;
   id: string;
 }
 
@@ -136,4 +146,26 @@ export const generateWhatsAppImageMessage = (
       link: url,
     },
   };
+};
+
+export const getTranslationFromAudioId = async (
+  audioId: string,
+): Promise<string> => {
+  const { data } = await axios.get<WhatsAppMediaResponse>(
+    `${WHATSAPP_URL}/${audioId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${whatsappToken}`,
+      },
+    },
+  );
+  const audio = await axios.get(data.url, {
+    headers: {
+      Authorization: `Bearer ${whatsappToken}`,
+    },
+    responseType: "arraybuffer",
+  });
+
+  const audioBuffer = Buffer.from(audio.data);
+  return getTranscription(audioBuffer);
 };
