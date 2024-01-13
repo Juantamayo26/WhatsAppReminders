@@ -209,12 +209,11 @@ const createRemindersFromOpenAI = async (
   user: User,
 ): Promise<Reminder> => {
   const { content, reminder_at, recurrence } = reminderParse;
-  if (recurrence) {
-  }
   const reminder = new Reminder(
     user.getId(),
     moment.tz(reminder_at, user.getTimeZone()).utc().subtract(1, "minutes"),
     content,
+    recurrence,
   );
   return reminder;
 };
