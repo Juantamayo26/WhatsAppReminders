@@ -13,9 +13,12 @@ export interface ReminderDbStructure {
 }
 
 export const saveReminder = async (
-  reminder: Reminder,
+  reminder: Reminder | undefined,
   connection: Connection,
 ): Promise<void> => {
+  if (!reminder) {
+    return;
+  }
   const reminderStructure = getReminderStructure(reminder);
   return saveStructures([reminderStructure], "reminders", connection);
 };

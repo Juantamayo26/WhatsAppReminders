@@ -123,6 +123,7 @@ export const runCompletion = async (
   let chatCompletion = await getChatCompletion(messages);
   const choice = chatCompletion.choices[0];
 
+  let reminder: Reminder | undefined = undefined;
   if (choice.finish_reason === "tool_calls") {
     // TODO: Runs all the tools
     // const tools = choice.message.tool_calls;
@@ -144,13 +145,13 @@ export const runCompletion = async (
       toolCall.function.arguments,
     ) as CreateReminderOpenAI;
 
-    await createRemindersFromOpenAI(reminderParse, user, connection);
-    const toolMessage = new Message(
-      "tool",
-      `Reminder created and will be remindered at ${reminderParse.reminder_at}`,
-      user.getId(),
-      toolId,
-    );
+    reminder = await createRemindersFromOpenAI(reminderParse, user);
+    const toolResponse = reminder.getRecurrence()
+      ? `Reminder created and will be remindered at ${
+          reminderParse.reminder_at
+        } with recurrence ${JSON.stringify(reminder.getRecurrence())}`
+      : `Reminder created and will be remindered at ${reminderParse.reminder_at}`;
+    const toolMessage = new Message("tool", toolResponse, user.getId(), toolId);
     messagesToSave.push(assitantFunction, toolMessage);
 
     chatCompletion = await getChatCompletion([
@@ -169,7 +170,10 @@ export const runCompletion = async (
     messagesToSave.push(assistantMessage);
   }
 
-  await saveMessages(messagesToSave, connection);
+  await Promise.all([
+    saveReminder(reminder, connection),
+    saveMessages(messagesToSave, connection),
+  ]);
   return assistantMessage;
 };
 
@@ -179,7 +183,6 @@ const buildMessagesToOpenAI = (
   return messages.map((message) => {
     switch (message.getRole()) {
       case "tool":
-        // const toolMessage = message.shouldBeSaved() ? message.getContent() :
         return {
           role: message.getRole(),
           content: message.getContent(),
@@ -204,8 +207,7 @@ const buildMessagesToOpenAI = (
 const createRemindersFromOpenAI = async (
   reminderParse: CreateReminderOpenAI,
   user: User,
-  connection: Connection,
-) => {
+): Promise<Reminder> => {
   const { content, reminder_at, recurrence } = reminderParse;
   if (recurrence) {
   }
@@ -214,5 +216,5 @@ const createRemindersFromOpenAI = async (
     moment.tz(reminder_at, user.getTimeZone()).utc().subtract(1, "minutes"),
     content,
   );
-  await saveReminder(reminder, connection);
+  return reminder;
 };
