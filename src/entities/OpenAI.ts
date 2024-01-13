@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { User } from "./User";
-import { Reminder } from "./Reminder";
+import { RecurrencePayload, Reminder } from "./Reminder";
 import moment from "moment-timezone";
 import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
 import { Connection } from "mysql2/promise";
@@ -21,9 +21,10 @@ import { Message } from "./Messages";
 
 dotenv.config();
 
-interface createReminderOpenAI {
+interface CreateReminderOpenAI {
   content: string;
   reminder_at: string;
+  recurrence?: RecurrencePayload;
 }
 
 const openai = new OpenAI();
@@ -63,6 +64,20 @@ const TOOLS: ChatCompletionTool[] = [
             format: "date-time",
             description:
               "The date and time of the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
+          },
+        },
+        recurrence: {
+          type: "object",
+          properties: {
+            frequency: {
+              type: "integer",
+              description: "The frequency of the recurrence",
+            },
+            unit: {
+              type: "string",
+              description:
+                "The unit of time for recurrence (e.g., 'month', 'year')",
+            },
           },
         },
         required: ["content", "reminder_at"],
@@ -127,7 +142,7 @@ export const runCompletion = async (
     );
     const reminderParse = JSON.parse(
       toolCall.function.arguments,
-    ) as createReminderOpenAI;
+    ) as CreateReminderOpenAI;
 
     await createRemindersFromOpenAI(reminderParse, user, connection);
     const toolMessage = new Message(
@@ -187,11 +202,13 @@ const buildMessagesToOpenAI = (
 };
 
 const createRemindersFromOpenAI = async (
-  reminderParse: createReminderOpenAI,
+  reminderParse: CreateReminderOpenAI,
   user: User,
   connection: Connection,
 ) => {
-  const { content, reminder_at } = reminderParse;
+  const { content, reminder_at, recurrence } = reminderParse;
+  if (recurrence) {
+  }
   const reminder = new Reminder(
     user.getId(),
     moment.tz(reminder_at, user.getTimeZone()).utc().subtract(1, "minutes"),

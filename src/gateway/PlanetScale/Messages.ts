@@ -44,9 +44,7 @@ const getMessageStructure = (message: Message): MessageDbStructure => {
     created_at: message.getCreatedAt(),
     user_id: message.getUserId(),
     tool_id: message.getToolId(),
-    tool_call: message.getToolCall()
-      ? JSON.stringify(message.getToolCall())
-      : undefined,
+    tool_call: JSON.stringify(message.getToolCall()),
   };
 };
 

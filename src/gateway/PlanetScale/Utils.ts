@@ -1,8 +1,12 @@
 import { Connection } from "mysql2/promise";
 import { UserDbStructure } from "./Users";
 import { MessageDbStructure } from "./Messages";
+import { ReminderDbStructure } from "./WhatsApp";
 
-export type DbStructure = UserDbStructure | MessageDbStructure;
+export type DbStructure =
+  | UserDbStructure
+  | MessageDbStructure
+  | ReminderDbStructure;
 
 export const saveStructures = async (
   structures: DbStructure[],

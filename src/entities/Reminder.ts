@@ -1,6 +1,11 @@
 import moment, { Moment } from "moment";
 import { v4 as uuid } from "uuid";
 
+export interface RecurrencePayload {
+  frequency: number;
+  unit: string;
+}
+
 export class Reminder {
   public static loadReminder(
     id: string,
@@ -9,21 +14,33 @@ export class Reminder {
     createdAt: string,
     message: string,
     isDone: boolean,
+    recurrence?: RecurrencePayload,
   ): Reminder {
-    const reminder = new Reminder(user, moment.utc(reminderAt), message);
+    const reminder = new Reminder(
+      user,
+      moment.utc(reminderAt),
+      message,
+      recurrence,
+    );
     reminder.createdAt = createdAt;
     reminder.setId(id);
     reminder.setDone(isDone);
     return reminder;
   }
 
-  constructor(user: string, reminderAt: Moment, message: string) {
+  constructor(
+    user: string,
+    reminderAt: Moment,
+    message: string,
+    recurrence?: RecurrencePayload,
+  ) {
     this.id = uuid();
     this.reminderAt = reminderAt.format("YYYY-MM-DD HH:mm:ss.SSS");
     this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
     this.message = message;
     this.user = user;
     this.done = false;
+    this.recurrence = recurrence;
   }
 
   private id: string;
@@ -32,6 +49,7 @@ export class Reminder {
   private message: string;
   private user: string;
   private done: boolean;
+  private recurrence?: RecurrencePayload;
 
   public getId(): string {
     return this.id;
@@ -63,5 +81,13 @@ export class Reminder {
 
   public getUser(): string {
     return this.user;
+  }
+
+  public getRecurrence(): RecurrencePayload | undefined {
+    return this.recurrence;
+  }
+
+  public setRecurrence(recurrence: RecurrencePayload): void {
+    this.recurrence = recurrence;
   }
 }

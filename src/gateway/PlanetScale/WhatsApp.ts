@@ -1,5 +1,6 @@
 import { Connection } from "mysql2/promise";
 import { Reminder } from "../../entities/Reminder";
+import { saveStructures } from "./Utils";
 
 export interface ReminderDbStructure {
   id: string;
@@ -8,7 +9,7 @@ export interface ReminderDbStructure {
   created_at: string;
   message: string;
   done: boolean;
-  every: string | null;
+  recurrence?: string;
 }
 
 export const saveReminder = async (
@@ -16,18 +17,7 @@ export const saveReminder = async (
   connection: Connection,
 ): Promise<void> => {
   const reminderStructure = getReminderStructure(reminder);
-  const columns = Object.keys(reminderStructure)
-    .map((key) => {
-      return `${key}`;
-    })
-    .join(",");
-  const query = `INSERT INTO reminders (${columns}) VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-  const values = Object.keys(reminderStructure).map((key) => {
-    return (reminderStructure as any)[key];
-  });
-
-  await connection.query(query, values);
+  return saveStructures([reminderStructure], "reminders", connection);
 };
 
 const getReminderStructure = (reminder: Reminder): ReminderDbStructure => {
@@ -38,6 +28,6 @@ const getReminderStructure = (reminder: Reminder): ReminderDbStructure => {
     created_at: reminder.getCreatedAt(),
     message: reminder.getMessage(),
     done: reminder.isDone(),
-    every: null,
+    recurrence: JSON.stringify(reminder.getRecurrence()),
   };
 };
