@@ -73,21 +73,21 @@ const TOOLS: ChatCompletionTool[] = [
             description:
               "The date and time of the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
           },
-        },
-        recurrence: {
-          type: "object",
-          description:
-            "The 'recurrence' object is used to determine how often a reminder should occur.",
-          properties: {
-            frequency: {
-              type: "integer",
-              description:
-                "The numerical value representing the frequency of the recurrence.",
-            },
-            unit: {
-              type: "string",
-              description:
-                "The unit of time for recurrence (e.g., 'month', 'year')",
+          recurrence: {
+            type: "object",
+            description:
+              "The recurrence object is used to determine how often a reminder should occur",
+            properties: {
+              frequency: {
+                type: "integer",
+                description:
+                  "The numerical value representing the frequency of the recurrence.",
+              },
+              unit: {
+                type: "string",
+                description:
+                  "The unit of time for recurrence (e.g., 'month', 'year')",
+              },
             },
           },
         },
