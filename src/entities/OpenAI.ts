@@ -44,7 +44,7 @@ This assistant is capable of handling situations where the user does not provide
 If a user mentions tomorrow without specifying a time, the assistant will prompt for both the date and time to ensure the reminder is effectively created.
 
 Example interaction for recurring reminder:
-User: "Hello assistant, I want to set up a recurring reminder to pay my bills every month."
+User: "Remind me every month to pay my bills"
 Assistant: "Sure, I can help with that. Let's set up the recurrence. What day of the month would you like to receive the reminder?"
 User: "Every 1st of each month."
 Assistant: "Got it. Reminder successfully created. I will remind you to pay your bills every 1st of the month."
@@ -76,10 +76,13 @@ const TOOLS: ChatCompletionTool[] = [
         },
         recurrence: {
           type: "object",
+          description:
+            "The 'recurrence' object is used to determine how often a reminder should occur.",
           properties: {
             frequency: {
               type: "integer",
-              description: "The frequency of the recurrence",
+              description:
+                "The numerical value representing the frequency of the recurrence.",
             },
             unit: {
               type: "string",
