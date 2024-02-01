@@ -125,9 +125,9 @@ export const runCompletion = async (
     ...buildMessagesToOpenAI([userMessage]),
     {
       role: "system",
-      content: `The timezone of the user is ${user.getTimeZone()} and the now is ${moment
+      content: `The now of the user is ${moment
         .tz(user.getTimeZone())
-        .format("YYYY-MM-DD HH:mm:ss.SSS")}`,
+        .format("YYYY-MM-DD HH:mm:ss.SSS A")}`,
     },
   ];
 
