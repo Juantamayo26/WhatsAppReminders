@@ -101,7 +101,7 @@ const TOOLS: ChatCompletionTool[] = [
 const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
   const stream = openai.beta.chat.completions.stream({
     messages,
-    model: "gpt-3.5-turbo-1106",
+    model: "gpt-3.5-turbo-0125",
     tools: TOOLS,
     tool_choice: "auto",
     stream: true,
