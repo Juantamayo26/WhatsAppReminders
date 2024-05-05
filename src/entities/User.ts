@@ -1,16 +1,13 @@
 import moment from "moment";
-import { v4 as uuid } from "uuid";
 
 export class User {
   private id: string;
-  private recipientPhoneNumber: string;
   private active: boolean;
   private createdAt: string;
   private threadId: string | null;
   private timeZone: string;
 
   public static loadUser(
-    id: string,
     recipientPhoneNumber: string,
     active: boolean,
     createdAt: string,
@@ -18,7 +15,6 @@ export class User {
     timeZone: string,
   ): User {
     const user = new User(recipientPhoneNumber, timeZone);
-    user.setId(id);
     user.setActive(active);
     user.setCreatedAt(createdAt);
     user.setThreadId(threadId);
@@ -26,8 +22,7 @@ export class User {
   }
 
   constructor(recipientPhoneNumber: string, timeZone: string) {
-    this.id = uuid();
-    this.recipientPhoneNumber = recipientPhoneNumber;
+    this.id = recipientPhoneNumber;
     this.active = true;
     this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
     this.threadId = null;
@@ -40,10 +35,6 @@ export class User {
 
   public setId(id: string) {
     this.id = id;
-  }
-
-  public getRecipientPhoneNumber(): string {
-    return this.recipientPhoneNumber;
   }
 
   public getActive(): boolean {

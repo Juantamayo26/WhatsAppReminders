@@ -3,8 +3,7 @@ import { User } from "../../entities/User";
 import { saveStructures } from "./Utils";
 
 export interface UserDbStructure {
-  id: string;
-  recipient_phone_number: string;
+  user_id: string;
   active: boolean;
   created_at: string;
   thread_id: string | null;
@@ -35,10 +34,9 @@ export const getUserByPhoneNumber = async (
   return buildUserFromRow(rows[0]);
 };
 
-const getUserStructure = (user: User): UserDbStructure => {
+export const getUserStructure = (user: User): UserDbStructure => {
   return {
-    id: user.getId(),
-    recipient_phone_number: user.getRecipientPhoneNumber(),
+    user_id: user.getId(),
     active: user.getActive(),
     created_at: user.getCreatedAt(),
     thread_id: user.getThreadId(),
@@ -46,9 +44,8 @@ const getUserStructure = (user: User): UserDbStructure => {
   };
 };
 
-const buildUserFromRow = (user: any): User => {
+export const buildUserFromRow = (user: any): User => {
   return User.loadUser(
-    user.id,
     user.recipient_phone_number,
     user.active,
     user.created_at,

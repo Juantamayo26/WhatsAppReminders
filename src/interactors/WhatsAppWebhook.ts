@@ -1,13 +1,14 @@
-import { Connection } from "mysql2/promise";
-import { onSession } from "../gateway/PlanetScale/Basics";
 import { User } from "../entities/User";
-import { getUserByPhoneNumber, saveUser } from "../gateway/PlanetScale/Users";
 import { runCompletion } from "../entities/OpenAI";
 import {
   generateWhatsAppText,
   getTranslationFromAudioId,
   sendWhatsAppMessage,
 } from "../entities/WhatsApp";
+import {
+  getDynamoUserByPhoneNumber,
+  saveDynamoUser,
+} from "../gateway/dynamoDB/Users";
 
 export interface WhatsAppWebhook {
   object: string;
@@ -125,22 +126,20 @@ export const sendMessageWebhook = async (
     console.log(`THE AUDIO IS: ${textMessage}`);
   }
 
-  await onSession(async (connection: Connection) => {
-    // TODO: get the timeZone by a chatgpt function
-    const timeZone = "America/Bogota";
+  // TODO: get the timeZone by a chatgpt function
+  const timeZone = "America/Bogota";
 
-    let user = await getUserByPhoneNumber(recipientPhoneNumber, connection);
-    if (user === null) {
-      user = new User(recipientPhoneNumber, timeZone);
-      await saveUser(user, connection);
-    }
+  let user = await getDynamoUserByPhoneNumber(recipientPhoneNumber);
+  if (user === null) {
+    user = new User(recipientPhoneNumber, timeZone);
+    await saveDynamoUser(user);
+  }
 
-    const message = await runCompletion(user, textMessage!, connection);
-    if (message) {
-      await sendWhatsAppMessage(
-        accountId,
-        generateWhatsAppText(message.getContent()!, recipientPhoneNumber),
-      );
-    }
-  });
+  const message = await runCompletion(user, textMessage!);
+  if (message) {
+    await sendWhatsAppMessage(
+      accountId,
+      generateWhatsAppText(message.getContent()!, recipientPhoneNumber),
+    );
+  }
 };

@@ -3,12 +3,6 @@ import dotenv from "dotenv";
 import { User } from "./User";
 import { RecurrencePayload, Reminder } from "./Reminder";
 import moment from "moment-timezone";
-import { saveReminder } from "../gateway/PlanetScale/WhatsApp";
-import { Connection } from "mysql2/promise";
-import {
-  getMessagesByUserId,
-  saveMessages,
-} from "../gateway/PlanetScale/Messages";
 import {
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
@@ -18,6 +12,10 @@ import {
   ChatCompletionUserMessageParam,
 } from "openai/resources/chat/completions";
 import { Message } from "./Messages";
+import {
+  getDynamoMessagesByUserId,
+  saveDynamoMessages,
+} from "../gateway/dynamoDB/Messages";
 
 dotenv.config();
 
@@ -114,12 +112,11 @@ const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
 export const runCompletion = async (
   user: User,
   wppMessage: string,
-  connection: Connection,
 ): Promise<Message | null> => {
   const userMessage = new Message("user", wppMessage, user.getId());
   let messagesToSave = [userMessage];
   const databaseMessages =
-    (await getMessagesByUserId(user.getId(), connection)) || [];
+    (await getDynamoMessagesByUserId(user.getId())) || [];
   let messages: ChatCompletionMessageParam[] = [
     { role: "system", content: INSTRUCTIONS },
     ...buildMessagesToOpenAI(databaseMessages),
@@ -183,8 +180,8 @@ export const runCompletion = async (
   }
 
   await Promise.all([
-    saveReminder(reminder, connection),
-    saveMessages(messagesToSave, connection),
+    // saveReminder(reminder, connection),
+    saveDynamoMessages(messagesToSave),
   ]);
   return assistantMessage;
 };

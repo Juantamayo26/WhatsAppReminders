@@ -36,7 +36,7 @@ export const getMessagesByUserId = async (
   return rows.map(buildMessageFromRow);
 };
 
-const getMessageStructure = (message: Message): MessageDbStructure => {
+export const getMessageStructure = (message: Message): MessageDbStructure => {
   return {
     id: message.getId(),
     role: message.getRole(),
@@ -48,7 +48,7 @@ const getMessageStructure = (message: Message): MessageDbStructure => {
   };
 };
 
-const buildMessageFromRow = (row: any): Message => {
+export const buildMessageFromRow = (row: any): Message => {
   return Message.loadMessage(
     row.id,
     row.role,
