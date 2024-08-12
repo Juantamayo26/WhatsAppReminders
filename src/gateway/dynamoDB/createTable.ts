@@ -12,13 +12,13 @@ export const usersTable: CreateTableInput = {
   TableName: "UsersTable",
   AttributeDefinitions: [
     {
-      AttributeName: "user_id",
+      AttributeName: "user",
       AttributeType: "S",
     },
   ],
   KeySchema: [
     {
-      AttributeName: "user_id",
+      AttributeName: "user",
       KeyType: "HASH",
     },
   ],
@@ -36,7 +36,7 @@ export const messagesTable: CreateTableInput = {
       AttributeType: "S",
     },
     {
-      AttributeName: "user_id",
+      AttributeName: "user",
       AttributeType: "S",
     },
     {
@@ -46,7 +46,7 @@ export const messagesTable: CreateTableInput = {
   ],
   KeySchema: [
     {
-      AttributeName: "user_id",
+      AttributeName: "user",
       KeyType: "HASH",
     },
     {
@@ -59,7 +59,7 @@ export const messagesTable: CreateTableInput = {
       IndexName: "messages-user-sort",
       KeySchema: [
         {
-          AttributeName: "user_id",
+          AttributeName: "user",
           KeyType: "HASH",
         },
         {

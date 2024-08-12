@@ -19,7 +19,7 @@ export const getDynamoMessagesByUserId = async (userId: string) => {
   const query: QueryCommandInput = {
     TableName: "MessagesTable",
     IndexName: "messages-user-sort",
-    KeyConditionExpression: "user_id = :recipient_phone_number",
+    KeyConditionExpression: "user = :recipient_phone_number",
     ExpressionAttributeValues: {
       ":recipient_phone_number": { S: userId },
     },

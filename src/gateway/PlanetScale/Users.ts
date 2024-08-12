@@ -3,7 +3,7 @@ import { User } from "../../entities/User";
 import { saveStructures } from "./Utils";
 
 export interface UserDbStructure {
-  user_id: string;
+  user: string;
   active: boolean;
   created_at: string;
   thread_id: string | null;
@@ -36,7 +36,7 @@ export const getUserByPhoneNumber = async (
 
 export const getUserStructure = (user: User): UserDbStructure => {
   return {
-    user_id: user.getId(),
+    user: user.getId(),
     active: user.getActive(),
     created_at: user.getCreatedAt(),
     thread_id: user.getThreadId(),

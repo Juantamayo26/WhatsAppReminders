@@ -7,7 +7,7 @@ export interface MessageDbStructure {
   role: string;
   content: string | undefined;
   created_at: string;
-  user_id: string;
+  user: string;
   tool_id: string | undefined;
   tool_call: string | undefined;
 }
@@ -42,7 +42,7 @@ export const getMessageStructure = (message: Message): MessageDbStructure => {
     role: message.getRole(),
     content: message.getContent(),
     created_at: message.getCreatedAt(),
-    user_id: message.getUserId(),
+    user: message.getUserId(),
     tool_id: message.getToolId(),
     tool_call: JSON.stringify(message.getToolCall()),
   };

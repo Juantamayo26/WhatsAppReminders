@@ -4,7 +4,7 @@ import { getTranscription } from "./Whisper";
 
 dotenv.config();
 
-const WHATSAPP_URL = "https://graph.facebook.com/v17.0";
+const WHATSAPP_URL = "https://graph.facebook.com/v20.0";
 const whatsappToken = process.env.WHATSAPP_TOKEN;
 
 export enum WhatsAppParameterType {
