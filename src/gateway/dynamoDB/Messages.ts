@@ -34,6 +34,8 @@ export const getDynamoMessagesByUserId = async (userId: string): Promise<Message
       new QueryCommand(query),
     );
 
+    console.log("items", items);
+
     if (!items) {
       return null;
     }

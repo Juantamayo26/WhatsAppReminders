@@ -54,7 +54,7 @@ export const buildMessageFromRow = (row: any): Message => {
     row.role,
     row.content,
     row.created_at,
-    row.user_id,
+    row.user,
     row.tool_id,
     row.tool_call,
   );
