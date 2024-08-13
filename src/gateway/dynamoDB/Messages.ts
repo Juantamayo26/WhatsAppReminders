@@ -34,15 +34,13 @@ export const getDynamoMessagesByUserId = async (userId: string): Promise<Message
       new QueryCommand(query),
     );
 
-    console.log("items", items);
-
-    if (!items) {
+    if (!items || items.length === 0) {
       return null;
     }
 
     return items.map(buildMessageFromRow);
   } catch (error) {
-    console.log("COULD_NOT_FIND_MESSAGES_BY_USER", error);
+    console.error("COULD_NOT_FIND_MESSAGES_BY_USER", error);
     return null;
   }
 };

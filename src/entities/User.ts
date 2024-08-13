@@ -3,14 +3,14 @@ import moment from "moment";
 export class User {
   private id: string;
   private active: boolean;
-  private createdAt: string;
+  private createdAt: Date;
   private threadId: string | null;
   private timeZone: string;
 
   public static loadUser(
     recipientPhoneNumber: string,
     active: boolean,
-    createdAt: string,
+    createdAt: Date,
     threadId: string | null,
     timeZone: string,
   ): User {
@@ -24,7 +24,7 @@ export class User {
   constructor(recipientPhoneNumber: string, timeZone: string) {
     this.id = recipientPhoneNumber;
     this.active = true;
-    this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
+    this.createdAt = moment().utc();
     this.threadId = null;
     this.timeZone = timeZone;
   }
@@ -53,11 +53,11 @@ export class User {
     this.threadId = threadId;
   }
 
-  public getCreatedAt(): string {
+  public getCreatedAt(): Date {
     return this.createdAt;
   }
 
-  public setCreatedAt(createdAt: string): void {
+  public setCreatedAt(createdAt: Date): void {
     this.createdAt = createdAt;
   }
 

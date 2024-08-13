@@ -38,7 +38,7 @@ export const getUserStructure = (user: User): UserDbStructure => {
   return {
     user: user.getId(),
     active: user.getActive(),
-    created_at: user.getCreatedAt(),
+    created_at: user.getCreatedAt().toISOString(),
     thread_id: user.getThreadId(),
     time_zone: user.getTimeZone(),
   };
@@ -48,7 +48,7 @@ export const buildUserFromRow = (row: any): User => {
   return User.loadUser(
     row.user,
     row.active,
-    row.created_at,
+    new Date(row.created_at),
     row.thread_id,
     row.time_zone,
   );
