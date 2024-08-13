@@ -8,7 +8,7 @@ export class Message {
   private id: string;
   private role: RoleType;
   private content: string | undefined;
-  private createdAt: string;
+  private createdAt: Date;
   private userId: string;
   private wasUpdated: boolean;
   private toolId: string | undefined;
@@ -18,7 +18,7 @@ export class Message {
     id: string,
     role: RoleType,
     content: string,
-    createdAt: string,
+    createdAt: Date,
     userId: string,
     toolId?: string,
     toolCall?: ChatCompletionMessageToolCall,
@@ -75,11 +75,11 @@ export class Message {
     return this.content;
   }
 
-  public setCreatedAt(createdAt: string): void {
+  public setCreatedAt(createdAt: Date): void {
     this.createdAt = createdAt;
   }
 
-  public getCreatedAt(): string {
+  public getCreatedAt(): Date {
     return this.createdAt;
   }
 

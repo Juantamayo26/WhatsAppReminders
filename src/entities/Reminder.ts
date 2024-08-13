@@ -10,8 +10,8 @@ export class Reminder {
   public static loadReminder(
     id: string,
     user: string,
-    reminderAt: string,
-    createdAt: string,
+    reminderAt: Date,
+    createdAt: Date,
     message: string,
     isDone: boolean,
     recurrence?: RecurrencePayload,
@@ -35,8 +35,8 @@ export class Reminder {
     recurrence?: RecurrencePayload,
   ) {
     this.id = uuid();
-    this.reminderAt = reminderAt.format("YYYY-MM-DD HH:mm:ss.SSS");
-    this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
+    this.reminderAt = reminderAt.toDate();
+    this.createdAt = moment().utc().toDate();
     this.message = message;
     this.user = user;
     this.done = false;
@@ -44,8 +44,8 @@ export class Reminder {
   }
 
   private id: string;
-  private createdAt: string;
-  private reminderAt: string;
+  private createdAt: Date;
+  private reminderAt: Date;
   private message: string;
   private user: string;
   private done: boolean;
@@ -67,11 +67,11 @@ export class Reminder {
     return this.done;
   }
 
-  public getCreatedAt(): string {
+  public getCreatedAt(): Date {
     return this.createdAt;
   }
 
-  public getReminderAt(): string {
+  public getReminderAt(): Date {
     return this.reminderAt;
   }
 
