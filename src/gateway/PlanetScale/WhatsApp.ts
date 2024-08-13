@@ -27,8 +27,8 @@ const getReminderStructure = (reminder: Reminder): ReminderDbStructure => {
   return {
     id: reminder.getId(),
     user: reminder.getUser(),
-    reminder_at: reminder.getReminderAt(),
-    created_at: reminder.getCreatedAt(),
+    reminder_at: reminder.getReminderAt().toISOString(),
+    created_at: reminder.getCreatedAt().toISOString(),
     message: reminder.getMessage(),
     done: reminder.isDone(),
     recurrence: JSON.stringify(reminder.getRecurrence()),

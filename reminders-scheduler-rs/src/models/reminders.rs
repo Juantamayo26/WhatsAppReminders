@@ -18,8 +18,8 @@ impl Reminder {
         let now = Utc::now().to_rfc3339();
         let result = client
             .scan()
-            .table_name("RemindersTable") // Update table name here
-            .filter_expression("done = :done AND reminder_at <= :now")
+            .table_name("RemindersTable")
+            .filter_expression("done = :done AND reminderAt <= :now")
             .expression_attribute_values(":done", AttributeValue::Bool(false))
             .expression_attribute_values(":now", AttributeValue::S(now))
             .send()
@@ -32,11 +32,11 @@ impl Reminder {
             .filter_map(|item| {
                 Some(Reminder {
                     id: item.get("id")?.as_s().ok()?.to_string(),
-                    reminder_at: item.get("reminder_at")?.as_s().ok()?.parse().ok()?,
-                    created_at: item.get("created_at")?.as_s().ok()?.parse().ok()?,
+                    reminder_at: item.get("reminderAt")?.as_s().ok()?.parse().ok()?,
+                    created_at: item.get("createdAt")?.as_s().ok()?.parse().ok()?,
                     message: item.get("message")?.as_s().ok()?.to_string(),
                     user: item.get("user")?.as_s().ok()?.to_string(),
-                    recipient_phone_number: item.get("recipient_phone_number")?.as_s().ok()?.to_string(),
+                    recipient_phone_number: item.get("user")?.as_s().ok()?.to_string(),
                     done: item.get("done")?.as_bool().ok()?.to_owned(),
                 })
             })
@@ -49,7 +49,7 @@ impl Reminder {
         for reminder in reminders {
             client
                 .update_item()
-                .table_name("RemindersTable") // Update table name here
+                .table_name("RemindersTable")
                 .key("id", AttributeValue::S(reminder.id.clone()))
                 .update_expression("SET done = :done")
                 .expression_attribute_values(":done", AttributeValue::Bool(true))

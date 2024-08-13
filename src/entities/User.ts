@@ -24,7 +24,7 @@ export class User {
   constructor(recipientPhoneNumber: string, timeZone: string) {
     this.id = recipientPhoneNumber;
     this.active = true;
-    this.createdAt = moment().utc();
+    this.createdAt = moment().utc().toDate();
     this.threadId = null;
     this.timeZone = timeZone;
   }

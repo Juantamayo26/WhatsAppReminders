@@ -39,7 +39,7 @@ export class Message {
     this.id = uuid();
     this.role = role;
     this.content = content;
-    this.createdAt = moment().utc().format("YYYY-MM-DD HH:mm:ss.SSS");
+    this.createdAt = moment().utc().toDate();
     this.userId = userId;
     this.wasUpdated = true;
     this.toolId = toolId;
