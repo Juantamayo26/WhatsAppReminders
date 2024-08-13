@@ -134,6 +134,7 @@ export const sendMessageWebhook = async (
     user = new User(recipientPhoneNumber, timeZone);
     await saveDynamoUser(user);
   }
+  console.log("USER", user);
 
   const message = await runCompletion(user, textMessage!);
   if (message) {

@@ -18,8 +18,8 @@ impl Reminder {
         let now = Utc::now().to_rfc3339();
         let result = client
             .scan()
-            .table_name("Reminders")
-            .filter_expression("done = :done AND reminder_at < :now")
+            .table_name("RemindersTable") // Update table name here
+            .filter_expression("done = :done AND reminder_at <= :now")
             .expression_attribute_values(":done", AttributeValue::Bool(false))
             .expression_attribute_values(":now", AttributeValue::S(now))
             .send()
@@ -49,7 +49,7 @@ impl Reminder {
         for reminder in reminders {
             client
                 .update_item()
-                .table_name("Reminders")
+                .table_name("RemindersTable") // Update table name here
                 .key("id", AttributeValue::S(reminder.id.clone()))
                 .update_expression("SET done = :done")
                 .expression_attribute_values(":done", AttributeValue::Bool(true))
