@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+// import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 import dotenv from "dotenv";
 import { User } from "./User";
 import { RecurrencePayload, Reminder } from "./Reminder";
@@ -27,8 +29,8 @@ interface CreateReminderOpenAI {
 }
 
 const openai = new OpenAI();
-const INSTRUCTIONS = `You are an expert virtual assistant specialized in managing reminders.
-This assistant is designed to receive user messages with the intention of creating reminders using the createReminder function.
+const INSTRUCTIONS = `You are an expert virtual assistant specialized in managing reminders. Use the supplied tools to assist the user.
+This assistant is designed to receive user messages with the intention of creating reminders using the createReminder tool.
 The function requires two mandatory parameters: the content of the reminder and the date and time for the reminder, which could be for a one-time reminder or the starting date for recurring reminders.
 
 Example interaction for one-time reminder:
@@ -97,17 +99,26 @@ const TOOLS: ChatCompletionTool[] = [
   },
 ];
 
+const RecurrencePayloadSchema = z.object({
+  frequency: z.number(),
+  unit: z.string(),
+});
+
+export const CreateReminderOpenAISchema = z.object({
+  content: z.string(),
+  reminder_at: z.string(), // You might want to use z.string().datetime() if you want to enforce the format
+  recurrence: RecurrencePayloadSchema.optional(),
+});
+
 const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
-  const stream = openai.beta.chat.completions.stream({
+  const final_response = await openai.chat.completions.create({
     messages,
-    model: "gpt-3.5-turbo-0125",
+    model: "gpt-4o-mini-2024-07-18",
     tools: TOOLS,
-    tool_choice: "auto",
-    stream: true,
+    // tool_choice: "auto",
+    // stream: true,
   });
-  const chatCompletion = await stream.finalChatCompletion();
-  console.log(JSON.stringify(chatCompletion));
-  return chatCompletion;
+  return final_response;
 };
 
 export const runCompletion = async (
@@ -155,7 +166,7 @@ export const runCompletion = async (
       toolCall.function.arguments,
     ) as CreateReminderOpenAI;
 
-    reminder = await createRemindersFromOpenAI(reminderParse, user);
+    reminder = createRemindersFromOpenAI(reminderParse, user);
     const toolResponse = reminder.getRecurrence()
       ? `Reminder created and will be remindered at ${
           reminderParse.reminder_at
@@ -214,10 +225,10 @@ const buildMessagesToOpenAI = (
   });
 };
 
-const createRemindersFromOpenAI = async (
+const createRemindersFromOpenAI = (
   reminderParse: CreateReminderOpenAI,
   user: User,
-): Promise<Reminder> => {
+): Reminder => {
   const { content, reminder_at, recurrence } = reminderParse;
   const reminder = new Reminder(
     user.getId(),
