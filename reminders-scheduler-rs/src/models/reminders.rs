@@ -1,5 +1,5 @@
 use aws_sdk_dynamodb::{Client as DynamoDbClient, Error as DynamoDbError, types::AttributeValue};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -15,13 +15,13 @@ pub struct Reminder {
 
 impl Reminder {
     pub async fn get_reminders(client: &DynamoDbClient) -> Result<Vec<Reminder>, DynamoDbError> {
-        let now = Utc::now();
+        let now = Utc::now().to_rfc3339();
         let result = client
             .scan()
             .table_name("RemindersTable")
             .filter_expression("done = :done AND reminderAt <= :now")
             .expression_attribute_values(":done", AttributeValue::Bool(false))
-            .expression_attribute_values(":now", AttributeValue::S(now.to_string()))
+            .expression_attribute_values(":now", AttributeValue::S(now))
             .send()
             .await?;
 
@@ -32,8 +32,8 @@ impl Reminder {
             .filter_map(|item| {
                 Some(Reminder {
                     id: item.get("id")?.as_s().ok()?.to_string(),
-                    reminder_at: item.get("reminderAt")?.as_s().ok()?.parse().ok()?,
-                    created_at: item.get("createdAt")?.as_s().ok()?.parse().ok()?,
+                    reminder_at: parse_datetime(item.get("reminderAt")?.as_s().ok()?).ok()?,
+                    created_at: parse_datetime(item.get("createdAt")?.as_s().ok()?).ok()?,
                     message: item.get("message")?.as_s().ok()?.to_string(),
                     user: item.get("user")?.as_s().ok()?.to_string(),
                     recipient_phone_number: item.get("user")?.as_s().ok()?.to_string(),
@@ -59,4 +59,9 @@ impl Reminder {
 
         Ok(())
     }
+}
+
+fn parse_datetime(dt_str: &str) -> Result<DateTime<Utc>, chrono::ParseError> {
+    let naive = NaiveDateTime::parse_from_str(dt_str, "%Y-%m-%d %H:%M:%S%.3f")?;
+    Ok(DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc))
 }

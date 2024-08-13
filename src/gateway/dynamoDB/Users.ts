@@ -1,4 +1,4 @@
-import { QueryCommand, QueryCommandInput } from "@aws-sdk/client-dynamodb";
+import { QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 import { User } from "../../entities/User";
 import { buildUserFromRow, getUserStructure } from "../PlanetScale/Users";
 import { dynamoDocumentClient, saveItem } from "./Utils";
@@ -26,8 +26,6 @@ export const getDynamoUserByPhoneNumber = async (
     const { Items: items } = await dynamoDocumentClient.send(
       new QueryCommand(query),
     );
-
-    console.log(items);
 
     if (!items) {
       return null;

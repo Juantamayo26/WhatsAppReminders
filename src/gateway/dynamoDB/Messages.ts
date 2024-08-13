@@ -1,4 +1,4 @@
-import { QueryCommand, QueryCommandInput } from "@aws-sdk/client-dynamodb";
+import { QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 import { Message } from "../../entities/Messages";
 import {
   buildMessageFromRow,
@@ -38,7 +38,7 @@ export const getDynamoMessagesByUserId = async (
 
     console.log("items", items);
 
-    if (!items || items.length === 0) {
+    if (!items) {
       return null;
     }
 
