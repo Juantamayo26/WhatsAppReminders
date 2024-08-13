@@ -15,13 +15,13 @@ pub struct Reminder {
 
 impl Reminder {
     pub async fn get_reminders(client: &DynamoDbClient) -> Result<Vec<Reminder>, DynamoDbError> {
-        let now = Utc::now().to_rfc3339();
+        let now = Utc::now();
         let result = client
             .scan()
             .table_name("RemindersTable")
             .filter_expression("done = :done AND reminderAt <= :now")
             .expression_attribute_values(":done", AttributeValue::Bool(false))
-            .expression_attribute_values(":now", AttributeValue::S(now))
+            .expression_attribute_values(":now", AttributeValue::S(now.to_string()))
             .send()
             .await?;
 

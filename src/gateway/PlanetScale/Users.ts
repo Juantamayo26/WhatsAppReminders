@@ -48,7 +48,7 @@ export const buildUserFromRow = (row: any): User => {
   return User.loadUser(
     row.user,
     row.active,
-    new Date(row.created_at),
+    new Date(row.createdAt),
     row.thread_id,
     row.time_zone,
   );

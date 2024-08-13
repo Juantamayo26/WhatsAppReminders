@@ -15,13 +15,15 @@ export const saveDynamoMessages = async (
   return saveItems("MessagesTable", messageStructures);
 };
 
-export const getDynamoMessagesByUserId = async (userId: string): Promise<Message[] | null> => {
+export const getDynamoMessagesByUserId = async (
+  userId: string,
+): Promise<Message[] | null> => {
   const query: QueryCommandInput = {
     TableName: "MessagesTable",
     IndexName: "messages-user-sort",
     KeyConditionExpression: "#u = :user_id",
     ExpressionAttributeNames: {
-      "#u": "user"
+      "#u": "user",
     },
     ExpressionAttributeValues: {
       ":user_id": { S: userId },
@@ -33,6 +35,8 @@ export const getDynamoMessagesByUserId = async (userId: string): Promise<Message
     const { Items: items } = await dynamoDocumentClient.send(
       new QueryCommand(query),
     );
+
+    console.log("items", items);
 
     if (!items || items.length === 0) {
       return null;

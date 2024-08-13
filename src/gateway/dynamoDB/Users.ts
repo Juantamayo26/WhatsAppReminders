@@ -15,7 +15,7 @@ export const getDynamoUserByPhoneNumber = async (
     TableName: "UsersTable",
     KeyConditionExpression: "#u = :recipient_phone_number",
     ExpressionAttributeNames: {
-      "#u": "user"
+      "#u": "user",
     },
     ExpressionAttributeValues: {
       ":recipient_phone_number": { S: recipientPhoneNumber },
@@ -26,6 +26,8 @@ export const getDynamoUserByPhoneNumber = async (
     const { Items: items } = await dynamoDocumentClient.send(
       new QueryCommand(query),
     );
+
+    console.log(items);
 
     if (!items) {
       return null;
