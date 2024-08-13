@@ -26,10 +26,10 @@ export const getNotificationWebhookController = [
           await sendMessageWebhook(whatsAppPayload);
         }
       } catch (error) {
-        console.log(error);
+        console.log(JSON.stringify(error, null, 2));
+      } finally {
         res.sendStatus(200);
       }
-      res.sendStatus(200);
     } catch (error) {
       next(error);
     }
