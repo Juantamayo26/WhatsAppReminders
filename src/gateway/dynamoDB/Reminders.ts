@@ -23,6 +23,7 @@ export const dynamoDocumentClient = DynamoDBDocumentClient.from(
 export const saveReminderDynamo = async (
   reminder: Reminder | undefined,
 ): Promise<void> => {
+  console.log("reminder", reminder);
   if (!reminder) {
     return;
   }
