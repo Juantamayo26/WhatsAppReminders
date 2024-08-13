@@ -18,7 +18,7 @@ export const getDynamoUserByPhoneNumber = async (
       "#u": "user",
     },
     ExpressionAttributeValues: {
-      ":recipient_phone_number": { S: recipientPhoneNumber },
+      ":recipient_phone_number": recipientPhoneNumber,
     },
   };
 

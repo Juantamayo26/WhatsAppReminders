@@ -26,7 +26,7 @@ export const getDynamoMessagesByUserId = async (
       "#u": "user",
     },
     ExpressionAttributeValues: {
-      ":user_id": { S: userId },
+      ":user_id": userId,
     },
     ScanIndexForward: true,
   };
