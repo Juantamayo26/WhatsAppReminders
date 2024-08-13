@@ -23,8 +23,6 @@ async fn function_handler(_event: LambdaEvent<CloudWatchEvent>) -> Result<(), Er
     let whatsapp_client = WhatasppClient::new(token.as_str(), phone_id.as_str());
     let reminders = Reminder::get_reminders(&dynamodb_client).await?;
 
-    println!("Reminders: {:?}", reminders);
-
     let messages: Vec<Message> = reminders
         .iter()
         .map(|reminder| {
