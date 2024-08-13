@@ -32,6 +32,7 @@ export const getDynamoMessagesByUserId = async (
   };
 
   try {
+    console.log(query);
     const { Items: items } = await dynamoDocumentClient.send(
       new QueryCommand(query),
     );
