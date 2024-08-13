@@ -19,7 +19,10 @@ export const getDynamoMessagesByUserId = async (userId: string) => {
   const query: QueryCommandInput = {
     TableName: "MessagesTable",
     IndexName: "messages-user-sort",
-    KeyConditionExpression: "user = :recipient_phone_number",
+    KeyConditionExpression: "#u = :recipient_phone_number",
+    ExpressionAttributeNames: {
+      "#u": "user"
+    },
     ExpressionAttributeValues: {
       ":recipient_phone_number": { S: userId },
     },
@@ -34,8 +37,6 @@ export const getDynamoMessagesByUserId = async (userId: string) => {
     if (!items) {
       return null;
     }
-
-    console.log("ITEMS", JSON.stringify(items, null, 2));
 
     return items.map(buildMessageFromRow);
   } catch (error) {

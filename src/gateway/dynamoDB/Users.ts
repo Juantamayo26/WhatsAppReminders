@@ -13,7 +13,10 @@ export const getDynamoUserByPhoneNumber = async (
 ): Promise<User | null> => {
   const query: QueryCommandInput = {
     TableName: "UsersTable",
-    KeyConditionExpression: "id = :recipient_phone_number",
+    KeyConditionExpression: "#u = :recipient_phone_number",
+    ExpressionAttributeNames: {
+      "#u": "user"
+    },
     ExpressionAttributeValues: {
       ":recipient_phone_number": { S: recipientPhoneNumber },
     },
