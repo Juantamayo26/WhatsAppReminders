@@ -27,7 +27,6 @@ export const getDynamoUserByPhoneNumber = async (
       new QueryCommand(query),
     );
 
-    console.log("USERS", items);
     if (!items || items.length === 0) {
       return null;
     }

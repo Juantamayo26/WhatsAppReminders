@@ -130,7 +130,6 @@ export const sendMessageWebhook = async (
   const timeZone = "America/Bogota";
 
   let user = await getDynamoUserByPhoneNumber(recipientPhoneNumber);
-  console.log(user);
   if (user === null) {
     user = new User(recipientPhoneNumber, timeZone);
     await saveDynamoUser(user);
