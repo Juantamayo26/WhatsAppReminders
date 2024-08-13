@@ -16,6 +16,7 @@ import {
   getDynamoMessagesByUserId,
   saveDynamoMessages,
 } from "../gateway/dynamoDB/Messages";
+import { saveReminderDynamo } from "../gateway/dynamoDB/Reminders";
 
 dotenv.config();
 
@@ -180,7 +181,7 @@ export const runCompletion = async (
   }
 
   await Promise.all([
-    // saveReminder(reminder, connection),
+    saveReminderDynamo(reminder),
     saveDynamoMessages(messagesToSave),
   ]);
   return assistantMessage;

@@ -3,24 +3,25 @@ use std::env;
 mod models;
 
 use aws_lambda_events::event::cloudwatch_events::CloudWatchEvent;
+use aws_sdk_dynamodb::Client as DynamoDbClient;
+use aws_config::BehaviorVersion;
 use dotenv::dotenv;
 use futures::future::join_all;
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use models::reminders::Reminder;
-use sqlx::MySqlPool;
 use whatsapp_cloud_api::{
     models::{Component, Message, Parameter, Template},
     WhatasppClient,
 };
 
 async fn function_handler(_event: LambdaEvent<CloudWatchEvent>) -> Result<(), Error> {
-    let url = env::var("DATABASE_URL").expect("DATABASE_URL_NOT_FOUND");
-    let pool = MySqlPool::connect(&url).await?;
+    let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
+    let dynamodb_client = DynamoDbClient::new(&config);
 
     let token = env::var("WHATSAPP_TOKEN").expect("WHATSAPP_TOKEN_NOT_FOUND");
     let phone_id = env::var("WHATSAPP_PHONE_ID").expect("WHATSAPP_PHONE_ID_NOT_FOUND");
     let whatsapp_client = WhatasppClient::new(token.as_str(), phone_id.as_str());
-    let reminders = Reminder::get_reminders(&pool).await?;
+    let reminders = Reminder::get_reminders(&dynamodb_client).await?;
 
     let messages: Vec<Message> = reminders
         .iter()
@@ -39,7 +40,7 @@ async fn function_handler(_event: LambdaEvent<CloudWatchEvent>) -> Result<(), Er
             .map(|message| whatsapp_client.send_message(message)),
     )
     .await;
-    Reminder::mark_as_done(&reminders, &pool).await?;
+    Reminder::mark_as_done(&reminders, &dynamodb_client).await?;
 
     Ok(())
 }

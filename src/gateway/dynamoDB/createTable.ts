@@ -63,7 +63,7 @@ export const messagesTable: CreateTableInput = {
           KeyType: "HASH",
         },
         {
-          AttributeName: "created_at",
+          AttributeName: "createdAt",
           KeyType: "RANGE",
         },
       ],
@@ -78,6 +78,49 @@ export const messagesTable: CreateTableInput = {
   BillingMode: "PAY_PER_REQUEST",
 };
 
+export const remindersTable: CreateTableInput = {
+  TableName: "RemindersTable",
+  AttributeDefinitions: [
+    {
+      AttributeName: "id",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "user",
+      AttributeType: "S",
+    },
+    {
+      AttributeName: "reminderAt",
+      AttributeType: "S",
+    },
+  ],
+  KeySchema: [
+    {
+      AttributeName: "id",
+      KeyType: "HASH",
+    },
+  ],
+  GlobalSecondaryIndexes: [
+    {
+      IndexName: "UserReminderAtIndex",
+      KeySchema: [
+        {
+          AttributeName: "user",
+          KeyType: "HASH",
+        },
+        {
+          AttributeName: "reminderAt",
+          KeyType: "RANGE",
+        },
+      ],
+      Projection: {
+        ProjectionType: "ALL",
+      },
+    },
+  ],
+  BillingMode: "PAY_PER_REQUEST",
+};
+
 export const run = async () => {
   try {
     const data = await dynamoClient.send(
@@ -87,6 +130,7 @@ export const run = async () => {
   } catch (err) {
     await dynamoClient.send(new CreateTableCommand(usersTable));
     await dynamoClient.send(new CreateTableCommand(messagesTable));
+    await dynamoClient.send(new CreateTableCommand(remindersTable));
     // console.log("TABLE_CREATED", data);
   }
 };

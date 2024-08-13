@@ -16,3 +16,7 @@ lambda_runtime = "0.8.3"
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt"] }
 openssl = { version = "0.10", features = ["vendored"] }
+serde = { version = "1.0", features = ["derive"] }
+aws-sdk-dynamodb = "1.40.0"
+aws-config = "1.5.5"
+chrono = { version = "0.4", features = ["serde"] }

@@ -1,9 +1,8 @@
-use sqlx::{
-    types::chrono::{DateTime, Utc},
-    FromRow, MySqlPool,
-};
+use aws_sdk_dynamodb::{Client as DynamoDbClient, Error as DynamoDbError, types::AttributeValue};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, FromRow)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Reminder {
     pub id: String,
     pub reminder_at: DateTime<Utc>,
@@ -11,46 +10,52 @@ pub struct Reminder {
     pub message: String,
     pub user: String,
     pub recipient_phone_number: String,
-    pub done: i8,
+    pub done: bool,
 }
 
 impl Reminder {
-    pub async fn get_reminders(pool: &MySqlPool) -> Result<Vec<Reminder>, sqlx::Error> {
-        let reminders = sqlx::query_as!(
-            Reminder,
-            r#"
-            SELECT 
-                reminders.id AS id, 
-                reminder_at, 
-                reminders.created_at, 
-                message, 
-                users.id AS user, 
-                recipient_phone_number, 
-                done
-            FROM reminders 
-            JOIN users ON users.id = reminders.user
-            WHERE done = 0 AND reminder_at < NOW()"#,
-        )
-        .fetch_all(pool)
-        .await?;
+    pub async fn get_reminders(client: &DynamoDbClient) -> Result<Vec<Reminder>, DynamoDbError> {
+        let now = Utc::now().to_rfc3339();
+        let result = client
+            .scan()
+            .table_name("Reminders")
+            .filter_expression("done = :done AND reminder_at < :now")
+            .expression_attribute_values(":done", AttributeValue::Bool(false))
+            .expression_attribute_values(":now", AttributeValue::S(now))
+            .send()
+            .await?;
+
+        let reminders = result
+            .items
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|item| {
+                Some(Reminder {
+                    id: item.get("id")?.as_s().ok()?.to_string(),
+                    reminder_at: item.get("reminder_at")?.as_s().ok()?.parse().ok()?,
+                    created_at: item.get("created_at")?.as_s().ok()?.parse().ok()?,
+                    message: item.get("message")?.as_s().ok()?.to_string(),
+                    user: item.get("user")?.as_s().ok()?.to_string(),
+                    recipient_phone_number: item.get("recipient_phone_number")?.as_s().ok()?.to_string(),
+                    done: item.get("done")?.as_bool().ok()?.to_owned(),
+                })
+            })
+            .collect();
 
         Ok(reminders)
     }
 
-    pub async fn mark_as_done(reminders: &Vec<Self>, pool: &MySqlPool) -> Result<(), sqlx::Error> {
-        if reminders.is_empty() {
-            return Ok(());
+    pub async fn mark_as_done(reminders: &Vec<Self>, client: &DynamoDbClient) -> Result<(), DynamoDbError> {
+        for reminder in reminders {
+            client
+                .update_item()
+                .table_name("Reminders")
+                .key("id", AttributeValue::S(reminder.id.clone()))
+                .update_expression("SET done = :done")
+                .expression_attribute_values(":done", AttributeValue::Bool(true))
+                .send()
+                .await?;
         }
-
-        let params = format!("?{}", ", ?".repeat(reminders.len() - 1));
-        let query_str = format!("UPDATE reminders SET done = 1 WHERE id IN ( { } )", params);
-
-        let mut query = sqlx::query(&query_str);
-        for i in reminders {
-            query = query.bind(i.id.clone());
-        }
-
-        query.execute(pool).await?;
 
         Ok(())
     }
