@@ -35,6 +35,8 @@ export const getDynamoMessagesByUserId = async (userId: string) => {
       return null;
     }
 
+    console.log("ITEMS", JSON.stringify(items, null, 2));
+
     return items.map(buildMessageFromRow);
   } catch (error) {
     console.log("COULD_NOT_FIND_MESSAGES_BY_USER", error);
