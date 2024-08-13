@@ -1,5 +1,5 @@
 use aws_sdk_dynamodb::{types::AttributeValue, Client as DynamoDbClient, Error as DynamoDbError};
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -42,6 +42,7 @@ impl Reminder {
             })
             .collect();
 
+        println!("Parsed reminders: {:?}", reminders);
         Ok(reminders)
     }
 
@@ -65,6 +66,6 @@ impl Reminder {
 }
 
 fn parse_datetime(dt_str: &str) -> Result<DateTime<Utc>, chrono::ParseError> {
-    let naive = NaiveDateTime::parse_from_str(dt_str, "%Y-%m-%d %H:%M:%S%.3f")?;
-    Ok(DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc))
+    DateTime::parse_from_rfc3339(dt_str)
+        .map(|dt| dt.with_timezone(&Utc))
 }
