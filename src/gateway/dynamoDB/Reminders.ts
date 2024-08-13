@@ -30,8 +30,8 @@ export const saveReminderDynamo = async (
   const reminderItem = {
     id: { S: reminder.getId() },
     user: { S: reminder.getUser() },
-    reminderAt: { S: reminder.getReminderAt().toISOString() },
-    createdAt: { S: reminder.getCreatedAt().toISOString() },
+    reminder_at: { S: reminder.getReminderAt().toISOString() },
+    created_at: { S: reminder.getCreatedAt().toISOString() },
     message: { S: reminder.getMessage() },
     done: { BOOL: reminder.isDone() },
     recurrence: { S: JSON.stringify(reminder.getRecurrence()) },

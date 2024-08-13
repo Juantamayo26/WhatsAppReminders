@@ -2,9 +2,9 @@
 use std::env;
 mod models;
 
+use aws_config::BehaviorVersion;
 use aws_lambda_events::event::cloudwatch_events::CloudWatchEvent;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
-use aws_config::BehaviorVersion;
 use dotenv::dotenv;
 use futures::future::join_all;
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};

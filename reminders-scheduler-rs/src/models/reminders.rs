@@ -1,5 +1,5 @@
-use aws_sdk_dynamodb::{Client as DynamoDbClient, Error as DynamoDbError, types::AttributeValue};
-use chrono::{DateTime, Utc, NaiveDateTime};
+use aws_sdk_dynamodb::{types::AttributeValue, Client as DynamoDbClient, Error as DynamoDbError};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +19,7 @@ impl Reminder {
         let result = client
             .scan()
             .table_name("RemindersTable")
-            .filter_expression("done = :done AND reminderAt <= :now")
+            .filter_expression("done = :done AND reminder_at <= :now")
             .expression_attribute_values(":done", AttributeValue::Bool(false))
             .expression_attribute_values(":now", AttributeValue::S(now))
             .send()
@@ -32,8 +32,8 @@ impl Reminder {
             .filter_map(|item| {
                 Some(Reminder {
                     id: item.get("id")?.as_s().ok()?.to_string(),
-                    reminder_at: parse_datetime(item.get("reminderAt")?.as_s().ok()?).ok()?,
-                    created_at: parse_datetime(item.get("createdAt")?.as_s().ok()?).ok()?,
+                    reminder_at: parse_datetime(item.get("reminder_at")?.as_s().ok()?).ok()?,
+                    created_at: parse_datetime(item.get("created_at")?.as_s().ok()?).ok()?,
                     message: item.get("message")?.as_s().ok()?.to_string(),
                     user: item.get("user")?.as_s().ok()?.to_string(),
                     recipient_phone_number: item.get("user")?.as_s().ok()?.to_string(),
@@ -45,7 +45,10 @@ impl Reminder {
         Ok(reminders)
     }
 
-    pub async fn mark_as_done(reminders: &Vec<Self>, client: &DynamoDbClient) -> Result<(), DynamoDbError> {
+    pub async fn mark_as_done(
+        reminders: &Vec<Self>,
+        client: &DynamoDbClient,
+    ) -> Result<(), DynamoDbError> {
         for reminder in reminders {
             client
                 .update_item()

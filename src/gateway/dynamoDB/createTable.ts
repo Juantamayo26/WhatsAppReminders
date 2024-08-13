@@ -40,7 +40,7 @@ export const messagesTable: CreateTableInput = {
       AttributeType: "S",
     },
     {
-      AttributeName: "createdAt",
+      AttributeName: "created_at",
       AttributeType: "S",
     },
   ],
@@ -63,7 +63,7 @@ export const messagesTable: CreateTableInput = {
           KeyType: "HASH",
         },
         {
-          AttributeName: "createdAt",
+          AttributeName: "created_at",
           KeyType: "RANGE",
         },
       ],
@@ -90,7 +90,7 @@ export const remindersTable: CreateTableInput = {
       AttributeType: "S",
     },
     {
-      AttributeName: "reminderAt",
+      AttributeName: "reminder_at",
       AttributeType: "S",
     },
   ],
@@ -109,7 +109,7 @@ export const remindersTable: CreateTableInput = {
           KeyType: "HASH",
         },
         {
-          AttributeName: "reminderAt",
+          AttributeName: "reminder_at",
           KeyType: "RANGE",
         },
       ],
