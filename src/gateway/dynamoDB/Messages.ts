@@ -37,6 +37,7 @@ export const getDynamoMessagesByUserId = async (userId: string) => {
     if (!items) {
       return null;
     }
+    console.log("Items:", items);
 
     return items.map(buildMessageFromRow);
   } catch (error) {
