@@ -1,7 +1,24 @@
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { Reminder } from "../../entities/Reminder";
+import dynamoDBParameters from "./DynamoDBParameters";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-const dynamoClient = new DynamoDBClient({});
+const marshallOptions = {
+  convertEmptyValues: false,
+  removeUndefinedValues: true,
+  convertClassInstanceToMap: true,
+};
+
+const unmarshallOptions = {
+  wrapNumbers: false,
+};
+
+const translateConfig = { marshallOptions, unmarshallOptions };
+const dynamoClient = new DynamoDBClient(dynamoDBParameters);
+export const dynamoDocumentClient = DynamoDBDocumentClient.from(
+  dynamoClient,
+  translateConfig,
+);
 
 export const saveReminderDynamo = async (reminder: Reminder | undefined): Promise<void> => {
   if (!reminder) {
