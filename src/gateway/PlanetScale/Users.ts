@@ -44,12 +44,12 @@ export const getUserStructure = (user: User): UserDbStructure => {
   };
 };
 
-export const buildUserFromRow = (user: any): User => {
+export const buildUserFromRow = (row: any): User => {
   return User.loadUser(
-    user.recipient_phone_number,
-    user.active,
-    user.created_at,
-    user.thread_id,
-    user.time_zone,
+    row.user,
+    row.active,
+    row.created_at,
+    row.thread_id,
+    row.time_zone,
   );
 };

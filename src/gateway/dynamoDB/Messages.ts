@@ -30,8 +30,6 @@ export const getDynamoMessagesByUserId = async (userId: string): Promise<Message
   };
 
   try {
-    console.log("DynamoDB Query:", JSON.stringify(query, null, 2));
-
     const { Items: items } = await dynamoDocumentClient.send(
       new QueryCommand(query),
     );
@@ -39,7 +37,6 @@ export const getDynamoMessagesByUserId = async (userId: string): Promise<Message
     if (!items) {
       return null;
     }
-    console.log("Items:", items);
 
     return items.map(buildMessageFromRow);
   } catch (error) {
