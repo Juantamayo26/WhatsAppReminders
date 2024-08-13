@@ -15,16 +15,16 @@ export const saveDynamoMessages = async (
   return saveItems("MessagesTable", messageStructures);
 };
 
-export const getDynamoMessagesByUserId = async (userId: string) => {
+export const getDynamoMessagesByUserId = async (userId: string): Promise<Message[] | null> => {
   const query: QueryCommandInput = {
     TableName: "MessagesTable",
     IndexName: "messages-user-sort",
-    KeyConditionExpression: "#user = :recipient_phone_number",
+    KeyConditionExpression: "#u = :user_id",
     ExpressionAttributeNames: {
-      "#user": "user"
+      "#u": "user"
     },
     ExpressionAttributeValues: {
-      ":recipient_phone_number": { S: userId },
+      ":user_id": { S: userId },
     },
     ScanIndexForward: true,
   };

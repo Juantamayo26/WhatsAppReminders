@@ -116,6 +116,7 @@ export const runCompletion = async (
 ): Promise<Message | null> => {
   const userMessage = new Message("user", wppMessage, user.getId());
   let messagesToSave = [userMessage];
+  console.log("User:", user);
   const databaseMessages =
     (await getDynamoMessagesByUserId(user.getId())) || [];
   let messages: ChatCompletionMessageParam[] = [
