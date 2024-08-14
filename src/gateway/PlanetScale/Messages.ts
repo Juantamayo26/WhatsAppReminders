@@ -45,7 +45,7 @@ export const getMessageStructure = (message: Message): MessageDbStructure => {
     created_at: message.getCreatedAt().toISOString(),
     user: message.getUserId(),
     tool_id: message.getToolId(),
-    tool_call: JSON.stringify(message.getToolCall()),
+    tool_call: message.getToolCall() ? JSON.stringify(message.getToolCall()) : undefined,
   };
 };
 
@@ -57,20 +57,6 @@ export const buildMessageFromRow = (row: any): Message => {
     new Date(row.created_at),
     row.user,
     row.tool_id,
-    buildToolCall(row.tool_call),
+    row.tool_call ? JSON.parse(row.tool_call) : undefined,
   );
-};
-
-const buildToolCall = (toolCall: any): ChatCompletionMessageToolCall | undefined => {
-  if (!toolCall) {
-    return undefined;
-  }
-  return {
-    id: toolCall.id,
-    type: toolCall.type,
-    function: {
-      name: toolCall.function.name,
-      arguments: JSON.stringify(toolCall.function.arguments),
-    },
-  };
 };
