@@ -70,7 +70,6 @@ const TOOLS: ChatCompletionTool[] = [
           },
           reminder_at: {
             type: "string",
-            format: "date-time",
             description:
               "The date and time of the reminder in format YYYY-MM-DD HH:mm:ss.SSS",
           },
@@ -86,8 +85,7 @@ const TOOLS: ChatCompletionTool[] = [
               },
               unit: {
                 type: "string",
-                description:
-                  "The unit of time for recurrence (e.g., 'month', 'year')",
+                description: "The unit of time for recurrence",
                 enum: ["day", "week", "month", "year"],
               },
             },
