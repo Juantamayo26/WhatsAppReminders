@@ -45,7 +45,9 @@ export const getMessageStructure = (message: Message): MessageDbStructure => {
     created_at: message.getCreatedAt().toISOString(),
     user: message.getUserId(),
     tool_id: message.getToolId(),
-    tool_call: message.getToolCall() ? JSON.stringify(message.getToolCall()) : undefined,
+    tool_call: message.getToolCall()
+      ? JSON.stringify(message.getToolCall())
+      : undefined,
   };
 };
 

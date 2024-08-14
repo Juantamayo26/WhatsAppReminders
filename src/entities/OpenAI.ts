@@ -1,6 +1,4 @@
 import OpenAI from "openai";
-// import { zodResponseFormat } from "openai/helpers/zod";
-import { z } from "zod";
 import dotenv from "dotenv";
 import { User } from "./User";
 import { RecurrencePayload, Reminder } from "./Reminder";
@@ -61,6 +59,7 @@ const TOOLS: ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "createReminder",
+      strict: true,
       description: "Create a reminder in the database",
       parameters: {
         type: "object",
@@ -89,26 +88,19 @@ const TOOLS: ChatCompletionTool[] = [
                 type: "string",
                 description:
                   "The unit of time for recurrence (e.g., 'month', 'year')",
+                enum: ["day", "week", "month", "year"],
               },
             },
+            additionalProperties: false,
+            required: ["frequency", "unit"],
           },
         },
+        additionalProperties: false,
         required: ["content", "reminder_at"],
       },
     },
   },
 ];
-
-const RecurrencePayloadSchema = z.object({
-  frequency: z.number(),
-  unit: z.string(),
-});
-
-export const CreateReminderOpenAISchema = z.object({
-  content: z.string(),
-  reminder_at: z.string(), // You might want to use z.string().datetime() if you want to enforce the format
-  recurrence: RecurrencePayloadSchema.optional(),
-});
 
 const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
   const final_response = await openai.chat.completions.create({
