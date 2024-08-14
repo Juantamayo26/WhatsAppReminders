@@ -59,7 +59,6 @@ const TOOLS: ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "createReminder",
-      strict: true,
       description: "Create a reminder in the database",
       parameters: {
         type: "object",
