@@ -1,50 +1,29 @@
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { Reminder } from "../../entities/Reminder";
-import dynamoDBParameters from "./DynamoDBParameters";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-
-const marshallOptions = {
-  convertEmptyValues: false,
-  removeUndefinedValues: true,
-  convertClassInstanceToMap: true,
-};
-
-const unmarshallOptions = {
-  wrapNumbers: false,
-};
-
-const translateConfig = { marshallOptions, unmarshallOptions };
-const dynamoClient = new DynamoDBClient(dynamoDBParameters);
-export const dynamoDocumentClient = DynamoDBDocumentClient.from(
-  dynamoClient,
-  translateConfig,
-);
+import { dynamoDocumentClient } from "./Utils";
 
 export const saveReminderDynamo = async (
   reminder: Reminder | undefined,
 ): Promise<void> => {
-  console.log("reminder", reminder);
   if (!reminder) {
     return;
   }
 
-  const reminderItem = {
-    id: { S: reminder.getId() },
-    user: { S: reminder.getUser() },
-    reminder_at: { S: reminder.getReminderAt().toISOString() },
-    created_at: { S: reminder.getCreatedAt().toISOString() },
-    message: { S: reminder.getMessage() },
-    done: { BOOL: reminder.isDone() },
-    recurrence: { S: JSON.stringify(reminder.getRecurrence()) },
-  };
-
-  const putItemCommand = new PutItemCommand({
+  const putItemCommand = new PutCommand({
     TableName: "RemindersTable",
-    Item: reminderItem,
+    Item: {
+      id: reminder.getId(),
+      user: reminder.getUser(),
+      reminder_at: reminder.getReminderAt().toISOString(),
+      created_at: reminder.getCreatedAt().toISOString(),
+      message: reminder.getMessage(),
+      done: reminder.isDone(),
+      recurrence: reminder.getRecurrence(),
+    },
   });
 
   try {
-    await dynamoClient.send(putItemCommand);
+    await dynamoDocumentClient.send(putItemCommand);
   } catch (error) {
     console.error("Error saving reminder to DynamoDB:", error);
     throw error;

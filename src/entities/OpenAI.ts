@@ -230,7 +230,6 @@ const createRemindersFromOpenAI = (
   user: User,
 ): Reminder => {
   const { content, reminder_at, recurrence } = reminderParse;
-  console.log("reminderParse", reminderParse);
   const reminder = new Reminder(
     user.getId(),
     moment.tz(reminder_at, user.getTimeZone()).utc().subtract(1, "minutes"),
