@@ -138,7 +138,7 @@ export const runCompletion = async (
       role: "system",
       content: `The now of the user is ${moment
         .tz(user.getTimeZone())
-        .format("YYYY-MM-DD HH:mm:ss.SSS A")}`,
+        .format("YYYY-MM-DD hh:mm:ss.SSS A")}`,
     },
   ];
 
