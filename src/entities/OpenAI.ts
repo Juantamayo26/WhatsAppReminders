@@ -118,6 +118,7 @@ const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
     // tool_choice: "auto",
     // stream: true,
   });
+  console.log(JSON.stringify(final_response));
   return final_response;
 };
 
