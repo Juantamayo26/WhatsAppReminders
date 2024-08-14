@@ -1,6 +1,7 @@
 import { Connection, RowDataPacket } from "mysql2/promise";
 import { Message } from "../../entities/Messages";
 import { saveStructures } from "./Utils";
+import { ChatCompletionMessageToolCall } from "openai/resources";
 
 export interface MessageDbStructure {
   id: string;
@@ -56,6 +57,20 @@ export const buildMessageFromRow = (row: any): Message => {
     new Date(row.created_at),
     row.user,
     row.tool_id,
-    row.tool_call,
+    buildToolCall(row.tool_call),
   );
+};
+
+const buildToolCall = (toolCall: any): ChatCompletionMessageToolCall | undefined => {
+  if (!toolCall) {
+    return undefined;
+  }
+  return {
+    id: toolCall.id,
+    type: toolCall.type,
+    function: {
+      name: toolCall.function.name,
+      arguments: JSON.stringify(toolCall.function.arguments),
+    },
+  };
 };
