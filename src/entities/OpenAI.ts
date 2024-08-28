@@ -17,6 +17,7 @@ import {
   saveDynamoMessages,
 } from "../gateway/dynamoDB/Messages";
 import { saveReminderDynamo } from "../gateway/dynamoDB/Reminders";
+import { sendInfoLog } from "./TelegramLogger";
 
 dotenv.config();
 
@@ -220,6 +221,11 @@ const createRemindersFromOpenAI = (
   user: User,
 ): Reminder => {
   const { content, reminder_at, recurrence } = reminderParse;
+  sendInfoLog("CREATING_REMINDER", {
+    content,
+    reminder_at,
+    recurrence,
+  }).catch();
   const reminder = new Reminder(
     user.getId(),
     moment.tz(reminder_at, user.getTimeZone()).utc().subtract(1, "minutes"),
