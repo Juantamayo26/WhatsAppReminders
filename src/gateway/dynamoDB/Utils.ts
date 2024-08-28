@@ -8,6 +8,7 @@ import {
 import dynamoDBParameters from "./DynamoDBParameters";
 import { MessageDbStructure } from "../PlanetScale/Messages";
 import { UserDbStructure } from "../PlanetScale/Users";
+import { sendErrorLog } from "../../entities/TelegramLogger";
 
 const marshallOptions = {
   convertEmptyValues: false,
@@ -40,7 +41,8 @@ export const saveItem = async (
   try {
     await dynamoDocumentClient.send(new PutCommand(itemToSave));
   } catch (error) {
-    console.log(error);
+    sendErrorLog("COULD_NOT_SAVE_DB_STRUCTURE", JSON.stringify(error)).catch();
+    console.log("COULD_NOT_SAVE_DB_STRUCTURE", error);
   }
 };
 
@@ -63,6 +65,7 @@ export const saveItems = async (
   try {
     await dynamoDocumentClient.send(new BatchWriteCommand(batchWriteParams));
   } catch (error) {
+    sendErrorLog("COULD_NOT_SAVE_DB_STRUCTURES", JSON.stringify(error)).catch();
     console.log(error);
   }
 };

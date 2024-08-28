@@ -2,6 +2,7 @@ import { QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 import { User } from "../../entities/User";
 import { buildUserFromRow, getUserStructure } from "../PlanetScale/Users";
 import { dynamoDocumentClient, saveItem } from "./Utils";
+import { sendErrorLog } from "../../entities/TelegramLogger";
 
 export const saveDynamoUser = async (user: User): Promise<void> => {
   const userStructure = getUserStructure(user);
@@ -33,6 +34,7 @@ export const getDynamoUserByPhoneNumber = async (
 
     return buildUserFromRow(items[0]);
   } catch (error) {
+    sendErrorLog("COULD_NOT_FIND_USER", JSON.stringify(error)).catch();
     console.log("COULD_NOT_FIND_USER", error);
     return null;
   }

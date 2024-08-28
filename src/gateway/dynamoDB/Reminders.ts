@@ -1,6 +1,7 @@
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { Reminder } from "../../entities/Reminder";
 import { dynamoDocumentClient } from "./Utils";
+import { sendErrorLog } from "../../entities/TelegramLogger";
 
 export const saveReminderDynamo = async (
   reminder: Reminder | undefined,
@@ -25,7 +26,11 @@ export const saveReminderDynamo = async (
   try {
     await dynamoDocumentClient.send(putItemCommand);
   } catch (error) {
-    console.error("Error saving reminder to DynamoDB:", error);
+    sendErrorLog(
+      "COULD_NOT_SAVE_REMINDER_TO_DYNAMODB",
+      JSON.stringify(error),
+    ).catch();
+    console.error("COULD_NOT_SAVE_REMINDER_TO_DYNAMODB", error);
     throw error;
   }
 };

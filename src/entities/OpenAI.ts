@@ -107,7 +107,6 @@ const getChatCompletion = async (messages: ChatCompletionMessageParam[]) => {
     // tool_choice: "auto",
     // stream: true,
   });
-  console.log(JSON.stringify(final_response));
   return final_response;
 };
 
@@ -126,6 +125,7 @@ export const runCompletion = async (
     {
       role: "system",
       content: `The now of the user in 24-Hour Clock Time is ${moment
+        .utc()
         .tz(user.getTimeZone())
         .format("YYYY-MM-DD HH:mm:ss.SSS")}`,
     },

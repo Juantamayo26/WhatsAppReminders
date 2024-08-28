@@ -121,12 +121,10 @@ export const sendMessageWebhook = async (
   let textMessage = whatsAppMessage.text?.body;
 
   if (audioMessage) {
-    console.log("PROCCESSING_AUDIO");
     textMessage = await getTranslationFromAudioId(audioMessage.id);
-    console.log(`THE AUDIO IS: ${textMessage}`);
   }
 
-  // TODO: get the timeZone by a chatgpt function
+  // TODO: get the timeZone by the number
   const timeZone = "America/Bogota";
 
   let user = await getDynamoUserByPhoneNumber(recipientPhoneNumber);

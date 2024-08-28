@@ -2,6 +2,7 @@ import { Connection } from "mysql2/promise";
 import { UserDbStructure } from "./Users";
 import { MessageDbStructure } from "./Messages";
 import { ReminderDbStructure } from "./WhatsApp";
+import { sendErrorLog } from "../../entities/TelegramLogger";
 
 export type DbStructure =
   | UserDbStructure
@@ -56,5 +57,6 @@ export const saveStructuresWithConflictKey = async (
       { tableName, onConflictStatement },
       error,
     );
+    sendErrorLog("COULD_NOT_SAVE_DB_STRUCTURE", JSON.stringify(error)).catch();
   }
 };

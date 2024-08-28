@@ -6,6 +6,7 @@ import {
 import { validation } from "../utils/Validator";
 import { notificationWhatsAppWebhookValidator } from "../utils/Validations";
 import { buildWhatsAppWebHookPayload } from "./WhatsAppPayloadCreation";
+import { sendErrorLog } from "../../entities/TelegramLogger";
 
 export const getNotificationWebhookController = [
   ...notificationWhatsAppWebhookValidator,
@@ -26,6 +27,10 @@ export const getNotificationWebhookController = [
           await sendMessageWebhook(whatsAppPayload);
         }
       } catch (error) {
+        sendErrorLog(
+          "COULD_NOT_SEND_WEBHOOK_MESSAGE",
+          JSON.stringify(error),
+        ).catch();
         console.log(JSON.stringify(error, null, 2));
       } finally {
         res.sendStatus(200);
